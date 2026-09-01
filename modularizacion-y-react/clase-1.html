@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Clase 1 · Import / Export</title>
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('tema');
+      if (!t) { t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'; }
+      document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
@@ -15,7 +24,13 @@
       <span class="miga-sep">/</span>
       <a class="miga-link" href="index.html">Modularización y React</a>
     </div>
-    <span class="miga">Clase 1 de 3</span>
+    <div class="navbar-derecha">
+
+      <span class="miga">Clase 1 de 3</span>
+
+      <button id="temaToggle" class="tema-toggle" aria-label="Cambiar tema" title="Cambiar tema">🌙</button>
+
+    </div>
   </nav>
 
   <div class="contenedor">
@@ -204,12 +219,22 @@ console.<span class="fn">log</span>(<span class="fn">capitalizarPalabra</span>(<
       </a>
     </div>
 
+    <div class="comentarios">
+      <h2>Comentarios</h2>
+      <p class="comentarios-nota">Dudas, correcciones o lo que se les ocurra sobre esta clase.</p>
+      <div id="giscus-container"></div>
+    </div>
+
     <div class="pie">
       MODULARIZACIÓN Y REACT
       <span class="firma">Por Jairo Severo</span>
     </div>
 
   </div>
+
+  <script src="../assets/theme.js" defer></script>
+  <script src="../assets/giscus-config.js" defer></script>
+  <script src="../assets/comments.js" defer></script>
 
 </body>
 </html>

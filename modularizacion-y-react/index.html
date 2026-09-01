@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Modularización y React</title>
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('tema');
+      if (!t) { t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'; }
+      document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
@@ -11,7 +20,13 @@
   <div class="barra-top"></div>
   <nav class="navbar">
     <a class="marca" href="../index.html"><span class="punto"></span>Inicio</a>
-    <span class="miga">Modularización y React</span>
+    <div class="navbar-derecha">
+
+      <span class="miga">Modularización y React</span>
+
+      <button id="temaToggle" class="tema-toggle" aria-label="Cambiar tema" title="Cambiar tema">🌙</button>
+
+    </div>
   </nav>
 
   <div class="hero">
@@ -58,6 +73,8 @@
     MODULARIZACIÓN Y REACT
     <span class="firma">Por Jairo Severo</span>
   </div>
+
+  <script src="../assets/theme.js" defer></script>
 
 </body>
 </html>

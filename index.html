@@ -4,11 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Clases de React</title>
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('tema');
+      if (!t) { t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'; }
+      document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 
   <div class="barra-top"></div>
+  <nav class="navbar">
+    <span class="marca"><span class="punto"></span>Clases de React</span>
+    <div class="navbar-derecha">
+      <button id="temaToggle" class="tema-toggle" aria-label="Cambiar tema" title="Cambiar tema">🌙</button>
+    </div>
+  </nav>
 
   <div class="hero">
     <div class="kicker" style="display:flex;">Catálogo de clases</div>
@@ -38,12 +53,30 @@
       <div class="flecha">→</div>
     </a>
 
+    <div class="card-clase disabled" aria-disabled="true">
+      <div class="num-grande" style="background:var(--disabled-badge);">3</div>
+      <div class="texto">
+        <div class="eyebrow">Curso &middot; próximamente</div>
+        <h2>Testing en React</h2>
+        <p>Cómo escribir tests para componentes: qué es un test, Jest, React Testing Library, y qué conviene testear.</p>
+      </div>
+      <span class="pill-proximamente">Próximamente&hellip;</span>
+    </div>
+
+  </div>
+
+  <div class="sugerencia-cta">
+    <a href="https://github.com/jair4x/clases-para-la-clase/discussions/new?category=Ideas" target="_blank" rel="noopener">
+      💡 Sugerí una clase o un tema
+    </a>
   </div>
 
   <div class="pie-hub">
     CLASES DE REACT
     <span class="firma">Por Jairo Severo</span>
   </div>
+
+  <script src="assets/theme.js" defer></script>
 
 </body>
 </html>
