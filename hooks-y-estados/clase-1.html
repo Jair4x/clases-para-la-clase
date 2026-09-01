@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clase 1 · useState y conditional renders</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+  <div class="barra-top"></div>
+  <nav class="navbar">
+    <div class="miga-grupo">
+      <a class="marca" href="../index.html"><span class="punto"></span>Inicio</a>
+      <span class="miga-sep">/</span>
+      <a class="miga-link" href="index.html">Hooks y estados</a>
+    </div>
+    <span class="miga">Clase 1 de 4</span>
+  </nav>
+
+  <div class="contenedor">
+
+    <div class="kicker">Hooks y estados &middot; Clase 1 de 4</div>
+    <h1 class="titulo">Estado y useState</h1>
+    <p class="subtitulo">Cómo un componente recuerda cosas entre renders, y cómo mostrar interfaz distinta según ese estado</p>
+
+    <h2 id="s1"><span class="badge" style="background:#7c3aed;">1</span>Qué es un render</h2>
+    <p>Antes de hablar de estado, una definición corta: un <strong>render</strong> es el momento en el que React ejecuta la función de un componente y calcula qué JSX tiene que mostrar en pantalla.</p>
+    <p>Cada vez que un componente aparece por primera vez, React lo renderiza. Y cada vez que algo le indica a React "esto puede haber cambiado", React lo vuelve a renderizar: ejecuta la función de nuevo, de punta a punta, y compara el resultado con lo que había en pantalla para actualizar solo lo necesario.</p>
+
+    <h2 id="s2"><span class="badge" style="background:#ec4899;">2</span>El problema: una variable no alcanza</h2>
+    <p>Entonces, ¿por qué no usar una variable común para guardar datos que cambian?</p>
+
+    <div class="code-label">Contador.jsx (no funciona como uno esperaría)</div>
+    <pre><span class="kw">function</span> <span class="fn">Contador</span>() {
+  <span class="kw">let</span> cuenta = <span class="num">0</span>;
+
+  <span class="kw">function</span> <span class="fn">incrementar</span>() {
+    cuenta = cuenta + <span class="num">1</span>;
+    console.<span class="fn">log</span>(cuenta); <span class="cm">// esto sí cambia</span>
+  }
+
+  <span class="kw">return</span> (
+    &lt;div&gt;
+      &lt;p&gt;Cuenta: {cuenta}&lt;/p&gt;
+      &lt;button onClick={incrementar}&gt;+1&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+
+    <p>El valor de <code class="inline">cuenta</code> cambia en la consola, pero <strong>la pantalla nunca se actualiza</strong>. Nada en ese código le pide a React que vuelva a renderizar, así que la función <code class="inline">Contador</code> no se vuelve a ejecutar, y ese <code class="inline">&lt;p&gt;</code> se queda con el JSX del primer render, con <code class="inline">cuenta</code> en 0 para siempre.</p>
+
+    <div class="nota">
+      <span class="etiqueta">Idea central</span>
+      Modificar una variable no provoca un render. Hace falta algo que React reconozca como una señal de "volvé a renderizar este componente". Para eso existe el estado.
+    </div>
+
+    <h2 id="s3"><span class="badge" style="background:#f59e0b;">3</span>useState: declarar estado</h2>
+    <p>El <strong>estado</strong> de un componente es un valor que React guarda por fuera de la función, asociado a esa instancia del componente. A diferencia de una variable común, cuando el estado se actualiza con la herramienta correcta, React se entera y dispara un nuevo render con el valor actualizado.</p>
+
+    <div class="code-label">Contador.jsx</div>
+    <pre><span class="kw">import</span> { useState } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">Contador</span>() {
+  <span class="kw">const</span> [cuenta, setCuenta] = <span class="fn">useState</span>(<span class="num">0</span>);
+
+  <span class="kw">return</span> (
+    &lt;div&gt;
+      &lt;p&gt;Cuenta: {cuenta}&lt;/p&gt;
+      &lt;button onClick={() =&gt; <span class="fn">setCuenta</span>(cuenta + <span class="num">1</span>)}&gt;+1&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+
+    <p><code class="inline">useState(0)</code> devuelve un array de dos elementos: el valor actual del estado (<code class="inline">cuenta</code>), y una función para pedirle a React que lo actualice (<code class="inline">setCuenta</code>). <code class="inline">0</code> es el valor con el que arranca la primera vez.</p>
+
+    <h3>Por qué se definen con paréntesis rectas</h3>
+    <p>Ya vimos cómo des-estructurar (destructuring) props en <a href="../modularizacion-y-react/clase-3.html">una de las clases del tema anterior</a>, sacando propiedades de un objeto por nombre: <code class="inline">{ nombre } = props</code>. Sin embargo, acá, en lugar de hacer referencia al nombre que queremos extraer, lo hacemos a la posición: <code class="inline">useState</code> no devuelve un objeto, devuelve un <strong>array</strong>, y de un array se destructura por posición:</p>
+
+    <pre class="sin-label"><span class="cm">// destructuring de array, plano, sin React</span>
+<span class="kw">const</span> par = [<span class="str">'Ana'</span>, <span class="num">30</span>];
+<span class="kw">const</span> [nombre, edad] = par;
+<span class="cm">// nombre = 'Ana' (primer elemento), edad = 30 (segundo elemento)</span></pre>
+
+    <p>Con <code class="inline">useState</code> pasa exactamente eso: el primer elemento del array (el valor) va a la primera variable, el segundo (la función para actualizar) va a la segunda. Por eso el nombre <code class="inline">cuenta</code> y <code class="inline">setCuenta</code> lo eligen ustedes, no viene fijo por ningún lado.</p>
+
+    <h2 id="s4"><span class="badge" style="background:#10b981;">4</span>Actualizar el estado</h2>
+    <p>El estado nunca se modifica directamente. Esto <strong>no</strong> funciona:</p>
+
+    <pre class="sin-label">cuenta = cuenta + <span class="num">1</span>; <span class="cm">// no dispara un render, es el mismo problema de la sección 2</span></pre>
+
+    <p>Siempre se usa la función que devuelve <code class="inline">useState</code>, que es la única forma que tiene React de enterarse del cambio:</p>
+
+    <pre class="sin-label"><span class="fn">setCuenta</span>(<span class="num">5</span>);              <span class="cm">// fija el valor en 5</span>
+<span class="fn">setCuenta</span>(cuenta + <span class="num">1</span>);    <span class="cm">// lo calcula a partir del valor actual</span></pre>
+
+    <p>La segunda forma, <code class="inline">setCuenta(cuenta + 1)</code>, tiene un problema cuando la función que la llama fue creada en un render anterior y "quedó viva" para más adelante. Un caso práctico y común: un contador que suma 1 solo, automáticamente, cada un segundo.</p>
+
+    <div class="nota">
+      <span class="etiqueta">Aviso</span>
+      El siguiente ejemplo usa <code class="inline">useEffect</code>, que vemos recién en la próxima clase. Por ahora alcanza con saber que ese código arranca un temporizador que llama a <code class="inline">setCuenta</code> una vez por segundo.
+    </div>
+
+    <div class="code-label">esto se queda pegado en 1, nunca llega a 2, 3, 4...</div>
+    <pre><span class="fn">useEffect</span>(() =&gt; {
+  <span class="kw">const</span> id = <span class="fn">setInterval</span>(() =&gt; {
+    <span class="fn">setCuenta</span>(cuenta + <span class="num">1</span>);
+  }, <span class="num">1000</span>);
+
+  <span class="kw">return</span> () =&gt; <span class="fn">clearInterval</span>(id);
+}, []);</pre>
+
+    <p>La función que corre cada segundo se creó <strong>una sola vez</strong>, cuando el efecto se ejecutó por primera vez. En ese momento, quedó "atada" al valor de <code class="inline">cuenta</code> que existía en ese instante (por ejemplo, 0). Entonces cada segundo hace <code class="inline">0 + 1</code>, siempre, sin enterarse de que el estado ya cambió a 1, después a 2, etc.</p>
+
+    <p>Para evitarlo, en vez de pasarle un valor calculado a mano, se le pasa una función. React le va a ir pasando a esa función el valor más actualizado disponible en ese momento, sin importar cuándo se creó la función que la está llamando:</p>
+
+    <div class="code-label">esto sí funciona, cuenta 1, 2, 3, 4...</div>
+    <pre><span class="fn">useEffect</span>(() =&gt; {
+  <span class="kw">const</span> id = <span class="fn">setInterval</span>(() =&gt; {
+    <span class="fn">setCuenta</span>(anterior =&gt; anterior + <span class="num">1</span>);
+  }, <span class="num">1000</span>);
+
+  <span class="kw">return</span> () =&gt; <span class="fn">clearInterval</span>(id);
+}, []);</pre>
+
+    <p>Acá, cada segundo, la función le pide a React "dame el valor más actualizado que tengas, y sumale 1", en vez de arrastrar un valor viejo capturado en el pasado. Como regla práctica: si una actualización de estado puede llegar a ejecutarse fuera del render que la originó (en un timer, una respuesta de red, un evento async), mejor usar la forma con función.</p>
+
+    <h2 id="s5"><span class="badge" style="background:#3b82f6;">5</span>Qué pasa cuando el estado cambia</h2>
+    <p>Al llamar a <code class="inline">setCuenta</code>, pasan tres cosas, en orden:</p>
+    <ol>
+      <li>React guarda el nuevo valor.</li>
+      <li>React vuelve a ejecutar la función del componente (un <strong>re-render</strong>, la idea de la sección 1), con el nuevo valor de <code class="inline">cuenta</code>.</li>
+      <li>React actualiza en pantalla solo lo que efectivamente cambió, no la página entera.</li>
+    </ol>
+
+    <div class="nota">
+      <span class="etiqueta">Dato</span>
+      Cada componente tiene su propio estado, aislado del resto. Si ponés dos <code class="inline">&lt;Contador /&gt;</code> en pantalla, cada uno lleva su propia cuenta, aunque estén hechos con el mismo código.
+    </div>
+
+    <h2 id="s6"><span class="badge" style="background:#06b6d4;">6</span>Conditional rendering</h2>
+    <p>Ahora que un componente puede tener estado, es común mostrar cosas distintas según ese estado. A eso se le llama <strong>renderizado condicional</strong>. Tres formas comunes:</p>
+
+    <h3>Operador ternario</h3>
+    <p>Es una forma corta de escribir un if/else que <strong>devuelve un valor</strong>, en vez de ejecutar bloques de código. La sintaxis es siempre la misma: <code class="inline">condición ? valorSiVerdadero : valorSiFalso</code>. Sin nada de React todavía:</p>
+
+    <pre class="sin-label"><span class="kw">const</span> edad = <span class="num">20</span>;
+<span class="kw">const</span> mensaje = edad &gt;= <span class="num">18</span> ? <span class="str">'Mayor de edad'</span> : <span class="str">'Menor de edad'</span>;
+<span class="cm">// mensaje = 'Mayor de edad'</span></pre>
+
+    <p>Adentro del JSX funciona exactamente igual, solo que en vez de un string, lo que se devuelve a cada lado es otro JSX:</p>
+
+    <div class="code-label">dentro del JSX</div>
+    <pre>{estaConectado ? &lt;p&gt;Bienvenido&lt;/p&gt; : &lt;p&gt;Iniciá sesión&lt;/p&gt;}</pre>
+
+    <h3>Operador &&, para mostrar u ocultar</h3>
+    <p><code class="inline">&&</code> en JavaScript no da como resultado <code class="inline">true</code> o <code class="inline">false</code>: evalúa de izquierda a derecha, y si el primer valor es falso, ni siquiera mira el segundo y devuelve ese primer valor tal cual. Si el primer valor es verdadero, devuelve directamente el segundo valor. Sin React:</p>
+
+    <pre class="sin-label">console.<span class="fn">log</span>(<span class="kw">false</span> &amp;&amp; <span class="str">'hola'</span>); <span class="cm">// false (ni siquiera llega a mirar 'hola')</span>
+console.<span class="fn">log</span>(<span class="kw">true</span> &amp;&amp; <span class="str">'hola'</span>);  <span class="cm">// 'hola' (el primero era verdadero, devuelve el segundo)</span></pre>
+
+    <p>React, al renderizar, simplemente no dibuja nada cuando el valor a mostrar es <code class="inline">false</code> (tampoco si es <code class="inline">null</code> o <code class="inline">undefined</code>). Por eso esta combinación funciona como un "mostrar u ocultar":</p>
+
+    <div class="code-label">dentro del JSX</div>
+    <pre>{hayErrores &amp;&amp; &lt;p className=<span class="str">"error"</span>&gt;Revisá el formulario&lt;/p&gt;}</pre>
+    <p>Si <code class="inline">hayErrores</code> es <code class="inline">false</code>, toda la expresión da <code class="inline">false</code> y React no dibuja nada. Si es <code class="inline">true</code>, la expresión da el <code class="inline">&lt;p&gt;</code> de la derecha, y eso es lo que se dibuja.</p>
+
+    <h3>if / else antes del return, para casos más grandes</h3>
+    <div class="code-label">Perfil.jsx</div>
+    <pre><span class="kw">function</span> <span class="fn">Perfil</span>({ cargando }) {
+  <span class="kw">if</span> (cargando) {
+    <span class="kw">return</span> &lt;p&gt;Cargando...&lt;/p&gt;;
+  }
+
+  <span class="kw">return</span> &lt;p&gt;Perfil listo&lt;/p&gt;;
+}</pre>
+
+    <table>
+      <tr>
+        <th>Forma</th>
+        <th>Cuándo usarla</th>
+      </tr>
+      <tr>
+        <td>Ternario <code class="inline">? :</code></td>
+        <td>Elegir entre dos cosas para mostrar</td>
+      </tr>
+      <tr>
+        <td>Operador <code class="inline">&amp;&amp;</code></td>
+        <td>Mostrar algo, u ocultarlo del todo</td>
+      </tr>
+      <tr>
+        <td><code class="inline">if / else</code></td>
+        <td>Lógica más larga, o retornos muy distintos entre sí</td>
+      </tr>
+    </table>
+
+
+    <div class="ejercicio">
+      <h2 style="margin-top:0;"><span class="badge" style="background:#7c3aed;">✎</span>Ejercicio</h2>
+      <ol>
+        <li>Crear un componente <code class="inline">Contador.jsx</code> con botones de <strong>+1</strong>, <strong>-1</strong> y <strong>reiniciar</strong> (volver a 0), usando <code class="inline">useState</code>.</li>
+        <li>Agregar un componente <code class="inline">Interruptor.jsx</code> con un botón que muestre u oculte un párrafo de texto (estado booleano, usando <code class="inline">&amp;&amp;</code> o ternario).</li>
+        <li>Bonus: al <code class="inline">Contador</code>, agregarle un mensaje condicional que diga "negativo" si la cuenta es menor a 0, y "positivo" si es mayor a 0.</li>
+      </ol>
+
+      <details class="solucion">
+        <summary>Ver solución<span class="tag">Click para expandir</span></summary>
+        <div class="contenido-solucion">
+
+          <div class="code-label">Contador.jsx</div>
+          <pre><span class="kw">import</span> { useState } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">export default</span> <span class="kw">function</span> <span class="fn">Contador</span>() {
+  <span class="kw">const</span> [cuenta, setCuenta] = <span class="fn">useState</span>(<span class="num">0</span>);
+
+  <span class="kw">return</span> (
+    &lt;div&gt;
+      &lt;p&gt;Cuenta: {cuenta}&lt;/p&gt;
+
+      {cuenta &lt; <span class="num">0</span> &amp;&amp; &lt;p&gt;negativo&lt;/p&gt;}
+      {cuenta &gt; <span class="num">0</span> &amp;&amp; &lt;p&gt;positivo&lt;/p&gt;}
+
+      &lt;button onClick={() =&gt; <span class="fn">setCuenta</span>(anterior =&gt; anterior + <span class="num">1</span>)}&gt;+1&lt;/button&gt;
+      &lt;button onClick={() =&gt; <span class="fn">setCuenta</span>(anterior =&gt; anterior - <span class="num">1</span>)}&gt;-1&lt;/button&gt;
+      &lt;button onClick={() =&gt; <span class="fn">setCuenta</span>(<span class="num">0</span>)}&gt;Reiniciar&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+
+          <div class="code-label">Interruptor.jsx</div>
+          <pre><span class="kw">import</span> { useState } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">export default</span> <span class="kw">function</span> <span class="fn">Interruptor</span>() {
+  <span class="kw">const</span> [visible, setVisible] = <span class="fn">useState</span>(<span class="kw">false</span>);
+
+  <span class="kw">return</span> (
+    &lt;div&gt;
+      &lt;button onClick={() =&gt; <span class="fn">setVisible</span>(anterior =&gt; !anterior)}&gt;
+        {visible ? <span class="str">'Ocultar'</span> : <span class="str">'Mostrar'</span>}
+      &lt;/button&gt;
+
+      {visible &amp;&amp; &lt;p&gt;Acá está el texto que aparece y desaparece.&lt;/p&gt;}
+    &lt;/div&gt;
+  );
+}</pre>
+
+          <div class="nota">
+            <span class="etiqueta">Para remarcar en clase</span>
+            En <code class="inline">Contador</code> usamos <code class="inline">setCuenta(anterior =&gt; anterior + 1)</code> en vez de <code class="inline">setCuenta(cuenta + 1)</code>, justamente porque el nuevo valor depende del anterior.
+          </div>
+
+        </div>
+      </details>
+    </div>
+
+    <div class="nav-clases">
+      <span></span>
+      <a class="der" href="clase-2.html">
+        <span class="eyebrow">Siguiente</span>
+        <span class="nombre">Clase 2: useEffect →</span>
+      </a>
+    </div>
+
+    <div class="pie">
+      HOOKS Y ESTADOS
+      <span class="firma">Por Jairo Severo</span>
+    </div>
+
+  </div>
+
+</body>
+</html>

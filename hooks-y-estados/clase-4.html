@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clase 4 · useContext y custom hooks</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+  <div class="barra-top"></div>
+  <nav class="navbar">
+    <div class="miga-grupo">
+      <a class="marca" href="../index.html"><span class="punto"></span>Inicio</a>
+      <span class="miga-sep">/</span>
+      <a class="miga-link" href="index.html">Hooks y estados</a>
+    </div>
+    <span class="miga">Clase 4 de 4</span>
+  </nav>
+
+  <div class="contenedor">
+
+    <div class="kicker">Hooks y estados &middot; Clase 4 de 4</div>
+    <h1 class="titulo">useContext y custom hooks</h1>
+    <p class="subtitulo">Cómo evitar pasar props de más, y cómo armar tus propios hooks reutilizables</p>
+
+    <h2 id="s1"><span class="badge" style="background:#7c3aed;">1</span>El problema: prop drilling</h2>
+    <p>Con lo visto hasta ahora, si un dato (por ejemplo, el usuario logueado) lo necesita un componente que está varios niveles adentro del árbol, hay que pasarlo por props a través de todos los componentes intermedios, aunque no lo usen:</p>
+
+    <div class="code-label">App.jsx</div>
+    <pre><span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">const</span> usuario = { nombre: <span class="str">'Ana'</span> };
+  <span class="kw">return</span> &lt;Layout usuario={usuario} /&gt;;
+}
+
+<span class="kw">function</span> <span class="fn">Layout</span>({ usuario }) {
+  <span class="kw">return</span> &lt;Sidebar usuario={usuario} /&gt;; <span class="cm">// Layout no usa "usuario", solo lo reenvía</span>
+}
+
+<span class="kw">function</span> <span class="fn">Sidebar</span>({ usuario }) {
+  <span class="kw">return</span> &lt;InsigniaUsuario usuario={usuario} /&gt;; <span class="cm">// tampoco lo usa acá</span>
+}
+
+<span class="kw">function</span> <span class="fn">InsigniaUsuario</span>({ usuario }) {
+  <span class="kw">return</span> &lt;p&gt;Hola, {usuario.nombre}&lt;/p&gt;; <span class="cm">// acá sí se usa, 3 niveles después</span>
+}</pre>
+
+    <p>A esto se le llama <strong>prop drilling</strong> (algo así como "perforar props" o "taladrar props" hasta el fondo, para hacerlas llegar): <code class="inline">Layout</code> y <code class="inline">Sidebar</code> reciben y reenvían <code class="inline">usuario</code> sin necesitarlo, solo porque están en el medio del camino.</p>
+
+    <div class="nota">
+      <span class="etiqueta">Por qué es un problema</span>
+      No es que el código no funcione, funciona perfectamente. El problema es de mantenimiento: <code class="inline">Layout</code> y <code class="inline">Sidebar</code> terminan atados a un dato que ni les interesa, solo porque alguien más abajo lo necesita. Si mañana <code class="inline">InsigniaUsuario</code> también necesita, por ejemplo, el idioma, hay que volver a agregar esa prop en cada componente intermedio. Y si se renombra <code class="inline">usuario</code>, hay que tocar los cuatro archivos, no uno. Cuantos más niveles, peor: componentes que deberían ser genéricos y reutilizables (como <code class="inline">Layout</code>) terminan atados a datos muy específicos de la aplicación.
+    </div>
+
+    <h2 id="s2"><span class="badge" style="background:#ec4899;">2</span>Context: un dato compartido</h2>
+    <p><strong>Context</strong> es una forma de declarar un valor que está disponible para toda una parte del árbol de componentes, sin tener que pasarlo manualmente nivel por nivel. Es como el wifi de una casa: el router "transmite la señal" en una zona, y cualquier dispositivo que esté dentro de esa zona se conecta directo, sin que haga falta tender un cable hasta cada dispositivo uno por uno.</p>
+    <p>Armar y usar un Context tiene tres partes:</p>
+    <ul>
+      <li><strong>Crear el Context</strong>, con <code class="inline">createContext</code>. Esto da un objeto que sirve como "canal" de comunicación.</li>
+      <li><strong>Proveer un valor</strong>, envolviendo una parte del árbol con el <code class="inline">Provider</code> de ese Context, y diciéndole qué valor transmitir.</li>
+      <li><strong>Leer el valor</strong>, desde cualquier componente adentro de ese Provider, sin importar a cuántos niveles de distancia esté (esto se hace con <code class="inline">useContext</code>, en la próxima sección).</li>
+    </ul>
+
+    <h3>1. Crear el Context</h3>
+    <div class="code-label">UsuarioContext.js</div>
+    <pre><span class="kw">import</span> { createContext } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">export const</span> UsuarioContext = <span class="fn">createContext</span>(<span class="kw">null</span>);</pre>
+    <p><code class="inline">createContext(null)</code> crea el "canal". El <code class="inline">null</code> es un valor por defecto, que solo se usaría si alguien intenta leer el Context desde afuera de cualquier Provider; en la práctica, casi siempre va a haber un Provider de por medio.</p>
+
+    <h3>2. Proveer un valor con el Provider</h3>
+    <p>Todo Context que se crea con <code class="inline">createContext</code> trae incorporado un componente <code class="inline">Provider</code> (literalmente, "el que provee"). Es un componente que envuelve una parte del árbol, y le pasa a <strong>todo lo que esté adentro</strong> el valor indicado en su prop <code class="inline">value</code>, sin que ese valor tenga que reaparecer como prop en cada nivel intermedio:</p>
+
+    <div class="code-label">App.jsx</div>
+    <pre><span class="kw">import</span> { UsuarioContext } <span class="kw">from</span> <span class="str">'./UsuarioContext'</span>;
+
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">const</span> usuario = { nombre: <span class="str">'Ana'</span> };
+
+  <span class="kw">return</span> (
+    &lt;UsuarioContext.Provider value={usuario}&gt;
+      &lt;Layout /&gt;
+    &lt;/UsuarioContext.Provider&gt;
+  );
+}</pre>
+
+    <h2 id="s3"><span class="badge" style="background:#f59e0b;">3</span>useContext: leer el valor</h2>
+    <p>Cualquier componente adentro del <code class="inline">Provider</code>, sin importar a cuántos niveles de distancia esté, puede leer el valor con <code class="inline">useContext</code>:</p>
+
+    <div class="code-label">InsigniaUsuario.jsx</div>
+    <pre><span class="kw">import</span> { useContext } <span class="kw">from</span> <span class="str">'react'</span>;
+<span class="kw">import</span> { UsuarioContext } <span class="kw">from</span> <span class="str">'./UsuarioContext'</span>;
+
+<span class="kw">function</span> <span class="fn">InsigniaUsuario</span>() {
+  <span class="kw">const</span> usuario = <span class="fn">useContext</span>(UsuarioContext);
+  <span class="kw">return</span> &lt;p&gt;Hola, {usuario.nombre}&lt;/p&gt;;
+}</pre>
+
+    <p><code class="inline">Layout</code> y <code class="inline">Sidebar</code> desaparecen del problema: ya no reciben ni reenvían <code class="inline">usuario</code>, porque nunca lo necesitaron.</p>
+
+    <div class="nota">
+      <span class="etiqueta">Cuándo usarlo (y cuándo no)</span>
+      Context sirve para datos realmente globales: usuario logueado, tema claro/oscuro, idioma. No es para reemplazar todas las props; si dos componentes están cerca en el árbol, pasar una prop directamente sigue siendo más simple y explícito.
+    </div>
+
+    <h2 id="s4"><span class="badge" style="background:#10b981;">4</span>Hooks propios: por qué y para qué</h2>
+    <p>Un hook propio es simplemente una función que empieza con <code class="inline">use</code> y que por dentro usa uno o más hooks de React. Sirve para reutilizar lógica con estado entre distintos componentes, sin repetir código.</p>
+
+    <div class="code-label">useTema.js</div>
+    <pre><span class="kw">import</span> { useContext } <span class="kw">from</span> <span class="str">'react'</span>;
+<span class="kw">import</span> { TemaContext } <span class="kw">from</span> <span class="str">'./TemaContext'</span>;
+
+<span class="kw">export function</span> <span class="fn">useTema</span>() {
+  <span class="kw">const</span> contexto = <span class="fn">useContext</span>(TemaContext);
+
+  <span class="kw">if</span> (!contexto) {
+    <span class="kw">throw new</span> <span class="fn">Error</span>(<span class="str">'useTema tiene que usarse adentro de TemaContext.Provider'</span>);
+  }
+
+  <span class="kw">return</span> contexto; <span class="cm">// { tema, cambiarTema }</span>
+}</pre>
+
+    <div class="code-label">BotonTema.jsx</div>
+    <pre><span class="kw">import</span> { useTema } <span class="kw">from</span> <span class="str">'./useTema'</span>;
+
+<span class="kw">function</span> <span class="fn">BotonTema</span>() {
+  <span class="kw">const</span> { tema, cambiarTema } = <span class="fn">useTema</span>();
+
+  <span class="kw">return</span> (
+    &lt;button onClick={cambiarTema}&gt;
+      Tema actual: {tema}
+    &lt;/button&gt;
+  );
+}</pre>
+
+    <p>Cualquier componente que necesite el tema usa <code class="inline">useTema()</code> en vez de repetir <code class="inline">useContext(TemaContext)</code> y su validación en todos lados. Esto es exactamente lo mismo que exportar e importar funciones de la Clase 1 de Modularización, aplicado a hooks.</p>
+
+    <div class="advertencia">
+      <span class="icono">!</span>
+      <div class="cuerpo">
+        <span class="etiqueta">Reglas de los hooks</span>
+        Los hooks (<code class="inline">useState</code>, <code class="inline">useEffect</code>, <code class="inline">useRef</code>, hooks propios, etc.) <strong>solo se llaman en el nivel superior</strong> de un componente o de otro hook. Nunca adentro de un <code class="inline">if</code>, un <code class="inline">for</code>, ni de una función anidada o un <code class="inline">return</code> anticipado. React depende de que se llamen siempre en el mismo orden, en cada render, para saber a qué estado corresponde cada uno; romper esa regla produce bugs difíciles de rastrear.
+      </div>
+    </div>
+
+    <div class="ejercicio">
+      <h2 style="margin-top:0;"><span class="badge" style="background:#7c3aed;">✎</span>Ejercicio</h2>
+      <ol>
+        <li>Crear un <code class="inline">TemaContext.js</code> con un <code class="inline">Provider</code> que guarde <code class="inline">tema</code> (<code class="inline">'claro'</code> o <code class="inline">'oscuro'</code>) usando <code class="inline">useState</code>, y una función para alternarlo.</li>
+        <li>Armar un custom hook <code class="inline">useTema.js</code> que envuelva el <code class="inline">useContext</code>.</li>
+        <li>Usar ese hook en 2 componentes distintos (por ejemplo, un <code class="inline">Header</code> y un <code class="inline">Boton</code>) para confirmar que ambos ven el mismo tema sin pasarse props entre sí.</li>
+      </ol>
+
+      <details class="solucion">
+        <summary>Ver solución<span class="tag">Click para expandir</span></summary>
+        <div class="contenido-solucion">
+
+          <div class="code-label">TemaContext.js</div>
+          <pre><span class="kw">import</span> { createContext, useState } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">export const</span> TemaContext = <span class="fn">createContext</span>(<span class="kw">null</span>);
+
+<span class="kw">export function</span> <span class="fn">TemaProvider</span>({ children }) {
+  <span class="kw">const</span> [tema, setTema] = <span class="fn">useState</span>(<span class="str">'claro'</span>);
+
+  <span class="kw">function</span> <span class="fn">cambiarTema</span>() {
+    <span class="fn">setTema</span>(anterior =&gt; (anterior === <span class="str">'claro'</span> ? <span class="str">'oscuro'</span> : <span class="str">'claro'</span>));
+  }
+
+  <span class="kw">return</span> (
+    &lt;TemaContext.Provider value={{ tema, cambiarTema }}&gt;
+      {children}
+    &lt;/TemaContext.Provider&gt;
+  );
+}</pre>
+
+          <div class="code-label">useTema.js</div>
+          <pre><span class="kw">import</span> { useContext } <span class="kw">from</span> <span class="str">'react'</span>;
+<span class="kw">import</span> { TemaContext } <span class="kw">from</span> <span class="str">'./TemaContext'</span>;
+
+<span class="kw">export function</span> <span class="fn">useTema</span>() {
+  <span class="kw">return</span> <span class="fn">useContext</span>(TemaContext);
+}</pre>
+
+          <div class="code-label">Header.jsx</div>
+          <pre><span class="kw">import</span> { useTema } <span class="kw">from</span> <span class="str">'./useTema'</span>;
+
+<span class="kw">export default</span> <span class="kw">function</span> <span class="fn">Header</span>() {
+  <span class="kw">const</span> { tema } = <span class="fn">useTema</span>();
+  <span class="kw">return</span> &lt;header className={tema}&gt;Mi sitio ({tema})&lt;/header&gt;;
+}</pre>
+
+          <div class="code-label">Boton.jsx</div>
+          <pre><span class="kw">import</span> { useTema } <span class="kw">from</span> <span class="str">'./useTema'</span>;
+
+<span class="kw">export default</span> <span class="kw">function</span> <span class="fn">Boton</span>() {
+  <span class="kw">const</span> { tema, cambiarTema } = <span class="fn">useTema</span>();
+  <span class="kw">return</span> &lt;button onClick={cambiarTema}&gt;Cambiar a {tema === <span class="str">'claro'</span> ? <span class="str">'oscuro'</span> : <span class="str">'claro'</span>}&lt;/button&gt;;
+}</pre>
+
+          <div class="code-label">App.jsx</div>
+          <pre><span class="kw">import</span> { TemaProvider } <span class="kw">from</span> <span class="str">'./TemaContext'</span>;
+<span class="kw">import</span> Header <span class="kw">from</span> <span class="str">'./Header'</span>;
+<span class="kw">import</span> Boton <span class="kw">from</span> <span class="str">'./Boton'</span>;
+
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    &lt;TemaProvider&gt;
+      &lt;Header /&gt;
+      &lt;Boton /&gt;
+    &lt;/TemaProvider&gt;
+  );
+}
+
+<span class="kw">export default</span> App;</pre>
+
+          <div class="nota">
+            <span class="etiqueta">Para remarcar en clase</span>
+            <code class="inline">Header</code> y <code class="inline">Boton</code> son hermanos, ninguno le pasa nada al otro, y sin embargo los dos ven el mismo <code class="inline">tema</code> y quedan sincronizados: si uno lo cambia, el otro se actualiza solo.
+          </div>
+
+        </div>
+      </details>
+    </div>
+
+    <div class="nav-clases">
+      <a href="clase-3.html">
+        <span class="eyebrow">Anterior</span>
+        <span class="nombre">← Clase 3: useRef</span>
+      </a>
+      <a class="der" href="index.html">
+        <span class="eyebrow">Fin de la sección</span>
+        <span class="nombre">Volver al inicio de Hooks →</span>
+      </a>
+    </div>
+
+    <div class="pie">
+      HOOKS Y ESTADOS
+      <span class="firma">Por Jairo Severo</span>
+    </div>
+
+  </div>
+
+</body>
+</html>

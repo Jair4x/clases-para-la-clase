@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clase 2 · useEffect</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+  <div class="barra-top"></div>
+  <nav class="navbar">
+    <div class="miga-grupo">
+      <a class="marca" href="../index.html"><span class="punto"></span>Inicio</a>
+      <span class="miga-sep">/</span>
+      <a class="miga-link" href="index.html">Hooks y estados</a>
+    </div>
+    <span class="miga">Clase 2 de 4</span>
+  </nav>
+
+  <div class="contenedor">
+
+    <div class="kicker">Hooks y estados &middot; Clase 2 de 4</div>
+    <h1 class="titulo">useEffect</h1>
+    <p class="subtitulo">Cómo hacer que un componente hable con el mundo exterior, y traer datos de una API</p>
+
+    <h2 id="s1"><span class="badge" style="background:#7c3aed;">1</span>Qué es un efecto secundario</h2>
+    <p>Hasta ahora, un componente solo hacía una cosa: recibir props/estado y devolver JSX. Eso es <strong>renderizar</strong>, y React espera que sea un proceso predecible y sin sorpresas.</p>
+    <p>Pero muchas veces un componente necesita hacer algo que sale de ese mundo: pedir datos a un servidor, iniciar un timer, escuchar un evento del navegador. A eso se le llama <strong>efecto secundario</strong>, y para eso existe <code class="inline">useEffect</code>.</p>
+
+    <div class="nota">
+      <span class="etiqueta">Idea central</span>
+      Renderizar es calcular qué mostrar. Un efecto es todo lo demás: algo que pasa "al costado" del render, generalmente para comunicarse con algo externo a React.
+    </div>
+
+    <h2 id="s2"><span class="badge" style="background:#ec4899;">2</span>Sintaxis básica</h2>
+    <div class="code-label">Ejemplo mínimo</div>
+    <pre><span class="kw">import</span> { useEffect } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="fn">useEffect</span>(() =&gt; {
+  console.<span class="fn">log</span>(<span class="str">'el componente se dibujó en pantalla'</span>);
+});</pre>
+
+    <p><code class="inline">useEffect</code> recibe una función. React la ejecuta después de que el componente se dibuja en pantalla, no durante el render.</p>
+
+    <h2 id="s3"><span class="badge" style="background:#f59e0b;">3</span>El array de dependencias</h2>
+    <p>Solo con eso, el efecto se ejecutaría después de <strong>cada</strong> render, lo cual casi nunca es lo que se quiere. El segundo argumento de <code class="inline">useEffect</code> controla cuándo se vuelve a ejecutar:</p>
+
+    <table>
+      <tr>
+        <th>Segundo argumento</th>
+        <th>Cuándo se ejecuta el efecto</th>
+      </tr>
+      <tr>
+        <td>sin segundo argumento</td>
+        <td>después de cada render</td>
+      </tr>
+      <tr>
+        <td><code class="inline">[]</code> (array vacío)</td>
+        <td>una sola vez, cuando el componente aparece en pantalla</td>
+      </tr>
+      <tr>
+        <td><code class="inline">[valor]</code></td>
+        <td>cuando cambia ese valor (además de la primera vez)</td>
+      </tr>
+    </table>
+
+    <pre class="sin-label"><span class="fn">useEffect</span>(() =&gt; {
+  console.<span class="fn">log</span>(<span class="str">'se ejecuta una sola vez'</span>);
+}, []);
+
+<span class="fn">useEffect</span>(() =&gt; {
+  console.<span class="fn">log</span>(<span class="str">'se ejecuta cuando cambia usuarioId'</span>);
+}, [usuarioId]);</pre>
+
+    <h2 id="s4"><span class="badge" style="background:#10b981;">4</span>La función de limpieza</h2>
+    <p>Si un efecto arma algo que después hay que desarmar (un timer, un event listener), <code class="inline">useEffect</code> puede devolver una función de <strong>limpieza</strong>, que React ejecuta antes de correr el efecto de nuevo, o cuando el componente desaparece de pantalla:</p>
+
+    <div class="code-label">Reloj.jsx</div>
+    <pre><span class="fn">useEffect</span>(() =&gt; {
+  <span class="kw">const</span> id = <span class="fn">setInterval</span>(() =&gt; {
+    console.<span class="fn">log</span>(<span class="str">'tick'</span>);
+  }, <span class="num">1000</span>);
+
+  <span class="kw">return</span> () =&gt; <span class="fn">clearInterval</span>(id); <span class="cm">// limpieza</span>
+}, []);</pre>
+
+    <p>Sin esa limpieza, el timer seguiría corriendo aunque el componente ya no esté en pantalla, generando comportamientos raros y fugas de memoria, que pueden llegar a afectar mucho el rendimiento.</p>
+
+    <h2 id="s5"><span class="badge" style="background:#3b82f6;">5</span>Caso de uso real: traer datos de una API</h2>
+    <p>El uso más común de <code class="inline">useEffect</code> es pedir datos apenas se muestra el componente. Se combina con <code class="inline">useState</code>, de la clase anterior, para guardar los datos, y con conditional rendering para mostrar distintos estados: cargando, error, o los datos ya listos.</p>
+
+    <div class="code-label">ListaUsuarios.jsx</div>
+    <pre><span class="kw">import</span> { useState, useEffect } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">ListaUsuarios</span>() {
+  <span class="kw">const</span> [usuarios, setUsuarios] = <span class="fn">useState</span>([]);
+  <span class="kw">const</span> [cargando, setCargando] = <span class="fn">useState</span>(<span class="kw">true</span>);
+  <span class="kw">const</span> [error, setError] = <span class="fn">useState</span>(<span class="kw">null</span>);
+
+  <span class="fn">useEffect</span>(() =&gt; {
+    <span class="fn">fetch</span>(<span class="str">'https://api.ejemplo.com/usuarios'</span>)
+      .<span class="fn">then</span>(respuesta =&gt; respuesta.<span class="fn">json</span>())
+      .<span class="fn">then</span>(datos =&gt; {
+        <span class="fn">setUsuarios</span>(datos);
+        <span class="fn">setCargando</span>(<span class="kw">false</span>);
+      })
+      .<span class="fn">catch</span>(err =&gt; {
+        <span class="fn">setError</span>(err.message);
+        <span class="fn">setCargando</span>(<span class="kw">false</span>);
+      });
+  }, []); <span class="cm">// [] = solo al montar el componente</span>
+
+  <span class="kw">if</span> (cargando) <span class="kw">return</span> &lt;p&gt;Cargando...&lt;/p&gt;;
+  <span class="kw">if</span> (error) <span class="kw">return</span> &lt;p&gt;Error: {error}&lt;/p&gt;;
+
+  <span class="kw">return</span> (
+    &lt;ul&gt;
+      {usuarios.<span class="fn">map</span>(u =&gt; &lt;li key={u.id}&gt;{u.nombre}&lt;/li&gt;)}
+    &lt;/ul&gt;
+  );
+}
+
+<span class="kw">export default</span> ListaUsuarios;</pre>
+
+    <div class="nota">
+      <span class="etiqueta">Para remarcar en clase</span>
+      Los tres <code class="inline">if</code> de arriba son el mismo conditional rendering de la Clase 1, aplicado a un caso real: mientras <code class="inline">cargando</code> es <code class="inline">true</code>, no tiene sentido intentar mostrar <code class="inline">usuarios</code>.
+    </div>
+
+    <div class="ejercicio">
+      <h2 style="margin-top:0;"><span class="badge" style="background:#7c3aed;">✎</span>Ejercicio</h2>
+      <ol>
+        <li>Crear un componente <code class="inline">Clima.jsx</code> que, al montarse, haga un <code class="inline">fetch</code> (podés usar la API de clima de la revista del semestre pasado o simular una API usando <code class="inline">setTimeout</code>) y muestre "Cargando..." mientras espera.</li>
+        <li>Cuando lleguen los datos, mostrarlos. Si falla, mostrar un mensaje de error.</li>
+        <li>Bonus: agregar un <code class="inline">useEffect</code> separado que solo loguee en consola cada vez que cambien los datos del clima (usando el array de dependencias).</li>
+      </ol>
+
+      <details class="solucion">
+        <summary>Ver solución<span class="tag">Click para expandir</span></summary>
+        <div class="contenido-solucion">
+
+          <div class="code-label">Clima.jsx</div>
+          <pre><span class="kw">import</span> { useState, useEffect } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">export default</span> <span class="kw">function</span> <span class="fn">Clima</span>() {
+  <span class="kw">const</span> [datos, setDatos] = <span class="fn">useState</span>(<span class="kw">null</span>);
+  <span class="kw">const</span> [cargando, setCargando] = <span class="fn">useState</span>(<span class="kw">true</span>);
+  <span class="kw">const</span> [error, setError] = <span class="fn">useState</span>(<span class="kw">null</span>);
+
+  <span class="fn">useEffect</span>(() =&gt; {
+    <span class="kw">const</span> timer = <span class="fn">setTimeout</span>(() =&gt; {
+      <span class="fn">setDatos</span>({ temperatura: <span class="num">22</span>, ciudad: <span class="str">'Montevideo'</span> });
+      <span class="fn">setCargando</span>(<span class="kw">false</span>);
+    }, <span class="num">1500</span>);
+
+    <span class="kw">return</span> () =&gt; <span class="fn">clearTimeout</span>(timer);
+  }, []);
+
+  <span class="fn">useEffect</span>(() =&gt; {
+    <span class="kw">if</span> (datos) {
+      console.<span class="fn">log</span>(<span class="str">'los datos del clima cambiaron:'</span>, datos);
+    }
+  }, [datos]);
+
+  <span class="kw">if</span> (cargando) <span class="kw">return</span> &lt;p&gt;Cargando...&lt;/p&gt;;
+  <span class="kw">if</span> (error) <span class="kw">return</span> &lt;p&gt;Error: {error}&lt;/p&gt;;
+
+  <span class="kw">return</span> (
+    &lt;p&gt;{datos.ciudad}: {datos.temperatura}&amp;deg;C&lt;/p&gt;
+  );
+}</pre>
+
+          <div class="nota">
+            <span class="etiqueta">Para remarcar en clase</span>
+            Son dos <code class="inline">useEffect</code> distintos, con responsabilidades distintas. Uno pide los datos una sola vez (<code class="inline">[]</code>), el otro reacciona cada vez que <code class="inline">datos</code> cambia (<code class="inline">[datos]</code>). No hay problema en tener varios <code class="inline">useEffect</code> en el mismo componente.
+          </div>
+
+        </div>
+      </details>
+    </div>
+
+    <div class="nav-clases">
+      <a href="clase-1.html">
+        <span class="eyebrow">Anterior</span>
+        <span class="nombre">← Clase 1: useState</span>
+      </a>
+      <a class="der" href="clase-3.html">
+        <span class="eyebrow">Siguiente</span>
+        <span class="nombre">Clase 3: useRef →</span>
+      </a>
+    </div>
+
+    <div class="pie">
+      HOOKS Y ESTADOS
+      <span class="firma">Por Jairo Severo</span>
+    </div>
+
+  </div>
+
+</body>
+</html>

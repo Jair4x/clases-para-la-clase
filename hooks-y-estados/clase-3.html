@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clase 3 · useRef</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+  <div class="barra-top"></div>
+  <nav class="navbar">
+    <div class="miga-grupo">
+      <a class="marca" href="../index.html"><span class="punto"></span>Inicio</a>
+      <span class="miga-sep">/</span>
+      <a class="miga-link" href="index.html">Hooks y estados</a>
+    </div>
+    <span class="miga">Clase 3 de 4</span>
+  </nav>
+
+  <div class="contenedor">
+
+    <div class="kicker">Hooks y estados &middot; Clase 3 de 4</div>
+    <h1 class="titulo">useRef</h1>
+    <p class="subtitulo">Cuándo guardar un valor sin que dispare un re-render, y cómo tocar el DOM directamente</p>
+
+    <h2 id="s1"><span class="badge" style="background:#7c3aed;">1</span>El problema: no todo necesita re-renderizar</h2>
+    <p><code class="inline">useState</code> es para datos que, al cambiar, tienen que actualizar lo que se ve en pantalla. Pero a veces se necesita guardar un valor que <strong>persista entre renders</strong>, sin que ese cambio dispare un re-render. Por ejemplo, contar cuántas veces se ejecutó algo, o guardar el id de un <code class="inline">setInterval</code> para poder cancelarlo después.</p>
+
+    <div class="code-label">si se usara useState para esto, sobrarían renders</div>
+    <pre><span class="kw">const</span> [idTimer, setIdTimer] = <span class="fn">useState</span>(<span class="kw">null</span>);
+<span class="cm">// cada setIdTimer(...) volvería a renderizar el componente,</span>
+<span class="cm">// aunque a nadie le importe ese valor en la pantalla</span></pre>
+
+    <h2 id="s2"><span class="badge" style="background:#ec4899;">2</span>La solución: useRef</h2>
+    <p><code class="inline">useRef</code> es un hook que le da a un componente un "casillero" propio para guardar un valor, que persiste entre renders igual que el estado, pero con una diferencia clave: <strong>cambiarlo no le pide nada a React</strong>. No dispara un re-render, no hace que el componente se vuelva a ejecutar, simplemente el valor queda actualizado ahí, disponible para la próxima vez que el componente corra.</p>
+    <p>Es la herramienta indicada para datos que el componente necesita recordar "para uso interno", pero que no forman parte de lo que se ve en pantalla.</p>
+
+    <div class="code-label">Ejemplo mínimo</div>
+    <pre><span class="kw">import</span> { useRef } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">const</span> contadorRef = <span class="fn">useRef</span>(<span class="num">0</span>);
+
+console.<span class="fn">log</span>(contadorRef.current); <span class="cm">// 0</span>
+
+contadorRef.current = contadorRef.current + <span class="num">1</span>;
+console.<span class="fn">log</span>(contadorRef.current); <span class="cm">// 1, sin re-render</span></pre>
+
+    <p>Desglosando esa sintaxis, parte por parte:</p>
+    <ul>
+      <li><code class="inline">useRef(0)</code>: el argumento (<code class="inline">0</code> acá) es el valor inicial, igual que el argumento de <code class="inline">useState</code>.</li>
+      <li>A diferencia de <code class="inline">useState</code>, no devuelve un array para destructurar. Devuelve directamente <strong>un objeto</strong>, siempre con la misma forma: <code class="inline">{ current: valor }</code>.</li>
+      <li><code class="inline">contadorRef</code> es ese objeto. Es el mismo objeto en todos los renders del componente, React nunca lo reemplaza por otro.</li>
+      <li><code class="inline">.current</code> es la única propiedad de ese objeto, y ahí vive el valor real. Se lee y se escribe directamente: <code class="inline">contadorRef.current</code>, sin funciones de por medio como el <code class="inline">setCuenta</code> de <code class="inline">useState</code>.</li>
+    </ul>
+
+    <table>
+      <tr>
+        <th></th>
+        <th>useState</th>
+        <th>useRef</th>
+      </tr>
+      <tr>
+        <td>Al cambiar el valor</td>
+        <td>dispara un re-render</td>
+        <td>no dispara nada</td>
+      </tr>
+      <tr>
+        <td>Se lee/escribe con</td>
+        <td>la variable y su setter</td>
+        <td><code class="inline">.current</code></td>
+      </tr>
+      <tr>
+        <td>Se usa para</td>
+        <td>datos que afectan lo que se ve</td>
+        <td>valores "internos", o referencias al DOM</td>
+      </tr>
+    </table>
+
+    <h2 id="s3"><span class="badge" style="background:#f59e0b;">3</span>Caso de uso 1: guardar un valor mutable</h2>
+    <div class="code-label">Reloj.jsx</div>
+    <pre><span class="kw">import</span> { useRef, useEffect } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">Reloj</span>() {
+  <span class="kw">const</span> idTimer = <span class="fn">useRef</span>(<span class="kw">null</span>);
+
+  <span class="fn">useEffect</span>(() =&gt; {
+    idTimer.current = <span class="fn">setInterval</span>(() =&gt; {
+      console.<span class="fn">log</span>(<span class="str">'tick'</span>);
+    }, <span class="num">1000</span>);
+
+    <span class="kw">return</span> () =&gt; <span class="fn">clearInterval</span>(idTimer.current);
+  }, []);
+
+  <span class="kw">return</span> &lt;p&gt;Mirá la consola&lt;/p&gt;;
+}</pre>
+
+    <p>Acá <code class="inline">idTimer</code> guarda el identificador del timer entre renders, para poder limpiarlo después. A nadie le importa mostrar ese id en pantalla, por eso no es <code class="inline">useState</code>.</p>
+
+    <h2 id="s4"><span class="badge" style="background:#10b981;">4</span>Caso de uso 2: referenciar un elemento del DOM</h2>
+    <p>El otro uso muy común de <code class="inline">useRef</code> es obtener acceso directo a un elemento del HTML, para hacer algo que React no maneja por props (como enfocar un input).</p>
+
+    <div class="code-label">FormularioLogin.jsx</div>
+    <pre><span class="kw">import</span> { useRef, useEffect } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">FormularioLogin</span>() {
+  <span class="kw">const</span> inputRef = <span class="fn">useRef</span>(<span class="kw">null</span>);
+
+  <span class="fn">useEffect</span>(() =&gt; {
+    inputRef.current.<span class="fn">focus</span>(); <span class="cm">// apenas aparece, el cursor ya está ahí</span>
+  }, []);
+
+  <span class="kw">return</span> &lt;input ref={inputRef} placeholder=<span class="str">"Usuario"</span> /&gt;;
+}</pre>
+
+    <p>Cuando se pasa un ref como el atributo <code class="inline">ref</code> de una etiqueta HTML, React hace que <code class="inline">inputRef.current</code> apunte al elemento real del DOM, con todos sus métodos nativos (<code class="inline">.focus()</code>, <code class="inline">.scrollIntoView()</code>, etc).</p>
+
+    <div class="nota">
+      <span class="etiqueta">Idea central</span>
+      Si el valor tiene que aparecer en pantalla → <code class="inline">useState</code>. Si es un dato interno que solo el componente necesita recordar, o una referencia a un elemento del DOM → <code class="inline">useRef</code>.
+    </div>
+
+    <div class="ejercicio">
+      <h2 style="margin-top:0;"><span class="badge" style="background:#7c3aed;">✎</span>Ejercicio</h2>
+      <ol>
+        <li>Crear un componente <code class="inline">CampoConFoco.jsx</code> con un <code class="inline">&lt;input&gt;</code> que se enfoque automáticamente al aparecer en pantalla, usando <code class="inline">useRef</code>.</li>
+        <li>Crear un componente <code class="inline">ContadorDeRenders.jsx</code> que muestre en pantalla, con <code class="inline">useState</code>, un texto que cambie con un botón, y que además lleve la cuenta de cuántas veces se renderizó el componente usando <code class="inline">useRef</code> (sin mostrar ese número, solo loguearlo en consola).</li>
+      </ol>
+
+      <details class="solucion">
+        <summary>Ver solución<span class="tag">Click para expandir</span></summary>
+        <div class="contenido-solucion">
+
+          <div class="code-label">CampoConFoco.jsx</div>
+          <pre><span class="kw">import</span> { useRef, useEffect } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">export default</span> <span class="kw">function</span> <span class="fn">CampoConFoco</span>() {
+  <span class="kw">const</span> inputRef = <span class="fn">useRef</span>(<span class="kw">null</span>);
+
+  <span class="fn">useEffect</span>(() =&gt; {
+    inputRef.current.<span class="fn">focus</span>();
+  }, []);
+
+  <span class="kw">return</span> &lt;input ref={inputRef} placeholder=<span class="str">"Escribí acá"</span> /&gt;;
+}</pre>
+
+          <div class="code-label">ContadorDeRenders.jsx</div>
+          <pre><span class="kw">import</span> { useState, useRef } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">export default</span> <span class="kw">function</span> <span class="fn">ContadorDeRenders</span>() {
+  <span class="kw">const</span> [texto, setTexto] = <span class="fn">useState</span>(<span class="str">'hola'</span>);
+  <span class="kw">const</span> renders = <span class="fn">useRef</span>(<span class="num">0</span>);
+
+  renders.current = renders.current + <span class="num">1</span>;
+  console.<span class="fn">log</span>(<span class="str">'este componente se renderizó'</span>, renders.current, <span class="str">'veces'</span>);
+
+  <span class="kw">return</span> (
+    &lt;div&gt;
+      &lt;p&gt;{texto}&lt;/p&gt;
+      &lt;button onClick={() =&gt; <span class="fn">setTexto</span>(<span class="str">'chau'</span>)}&gt;Cambiar texto&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+
+          <div class="nota">
+            <span class="etiqueta">Para remarcar en clase</span>
+            Incrementar <code class="inline">renders.current</code> directamente en el cuerpo del componente (no en un efecto) funciona porque ese incremento no necesita disparar nada; simplemente cuenta cuántas veces pasó por ahí la función.
+          </div>
+
+        </div>
+      </details>
+    </div>
+
+    <div class="nav-clases">
+      <a href="clase-2.html">
+        <span class="eyebrow">Anterior</span>
+        <span class="nombre">← Clase 2: useEffect</span>
+      </a>
+      <a class="der" href="clase-4.html">
+        <span class="eyebrow">Siguiente</span>
+        <span class="nombre">Clase 4: useContext y custom hooks →</span>
+      </a>
+    </div>
+
+    <div class="pie">
+      HOOKS Y ESTADOS
+      <span class="firma">Por Jairo Severo</span>
+    </div>
+
+  </div>
+
+</body>
+</html>
