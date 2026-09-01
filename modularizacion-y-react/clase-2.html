@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clase 2 · Componentes</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+  <div class="barra-top"></div>
+  <nav class="navbar">
+    <div class="miga-grupo">
+      <a class="marca" href="../index.html"><span class="punto"></span>Inicio</a>
+      <span class="miga-sep">/</span>
+      <a class="miga-link" href="index.html">Modularización y React</a>
+    </div>
+    <span class="miga">Clase 2 de 3</span>
+  </nav>
+
+  <div class="contenedor">
+
+    <div class="kicker">Modularización y React &middot; Clase 2 de 3</div>
+    <h1 class="titulo">Componentes</h1>
+    <p class="subtitulo">Por qué existen, cuándo conviene hacerlos y cómo funcionan</p>
+
+    <h2 id="s1"><span class="badge" style="background:#7c3aed;">1</span>La idea central</h2>
+    <p>Un componente de React es, en el fondo, <strong>una función de JavaScript que devuelve HTML</strong> (en realidad JSX, algo muy parecido a HTML, que compila a JS puro).</p>
+
+    <div class="code-label">Saludo.jsx</div>
+    <pre><span class="kw">function</span> <span class="fn">Saludo</span>() {
+  <span class="kw">return</span> &lt;h1&gt;Hola, mundo!&lt;/h1&gt;;
+}</pre>
+
+    <p>Se usa como si fuera una etiqueta HTML propia:</p>
+    <pre class="sin-label">&lt;Saludo /&gt;</pre>
+
+    <p>Esto conecta directo con lo que ya saben de JavaScript: es una función normal, solo que en vez de devolver un número o un string, devuelve interfaz.</p>
+
+    <h2 id="s2"><span class="badge" style="background:#ec4899;">2</span>Por qué hacer componentes</h2>
+    <p>Sin componentizar, una pantalla completa sería un solo bloque gigante de JSX. Los problemas son los mismos que vimos con los módulos en la Clase 1, aplicados ahora a la interfaz:</p>
+    <ul>
+      <li><strong>Reutilización:</strong> si tenés el mismo botón en 5 lugares, lo escribís una sola vez.</li>
+      <li><strong>Mantenibilidad:</strong> si hay que cambiar el diseño de una tarjeta, se cambia en un solo lugar.</li>
+      <li><strong>Legibilidad:</strong> <code class="inline">&lt;Header /&gt;&lt;Sidebar /&gt;&lt;Contenido /&gt;</code> se lee mejor que 200 líneas de <code class="inline">&lt;div&gt;</code> anidados.</li>
+      <li><strong>Testing:</strong> podés probar una pieza chica de forma aislada.</li>
+    </ul>
+
+    <h2 id="s3"><span class="badge" style="background:#f59e0b;">3</span>Cuándo conviene hacer un componente</h2>
+    <p>Reglas prácticas:</p>
+    <ul>
+      <li><strong>Se repite visualmente</strong> en más de un lugar → componente.</li>
+      <li><strong>Tiene su propia lógica</strong> (estado, cálculos, validaciones) → componente aparte.</li>
+      <li><strong>Es una unidad conceptual clara</strong> (un card, un botón, un formulario, un ítem de lista) → componente.</li>
+      <li>Si un componente crece demasiado (muchas responsabilidades mezcladas) → dividirlo en componentes más chicos.</li>
+    </ul>
+
+    <div class="nota">
+      <span class="etiqueta">Aclaración</span>
+      No hay que exagerar desde el día 1. No todo necesita ser su propio componente de entrada; se refactoriza cuando algo empieza a repetirse o a complicarse.
+    </div>
+
+    <h2 id="s4"><span class="badge" style="background:#10b981;">4</span>Cómo se conecta con la Clase 1</h2>
+    <p>Cada componente normalmente vive en <strong>su propio archivo</strong>, y se exporta/importa igual que cualquier función:</p>
+
+    <div class="code-label">Boton.jsx</div>
+    <pre><span class="kw">export default</span> <span class="kw">function</span> <span class="fn">Boton</span>() {
+  <span class="kw">return</span> &lt;button&gt;Click acá&lt;/button&gt;;
+}</pre>
+
+    <div class="code-label">App.jsx</div>
+    <pre><span class="kw">import</span> Boton <span class="kw">from</span> <span class="str">'./Boton'</span>;
+
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    &lt;div&gt;
+      &lt;h1&gt;Mi app&lt;/h1&gt;
+      &lt;Boton /&gt;
+    &lt;/div&gt;
+  );
+}
+
+<span class="kw">export default</span> App;</pre>
+
+    <p>Es literalmente lo mismo que en la Clase 1: un archivo exporta algo, otro lo importa. La única diferencia es que lo que se exporta es una función que devuelve interfaz.</p>
+
+    <h2 id="s5"><span class="badge" style="background:#3b82f6;">5</span>Composición: componentes dentro de componentes</h2>
+    <div class="code-label">Card.jsx</div>
+    <pre><span class="kw">function</span> <span class="fn">Card</span>() {
+  <span class="kw">return</span> (
+    &lt;div className=<span class="str">"card"</span>&gt;
+      &lt;Boton /&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+    <p>Los componentes se combinan (se "componen") entre sí, como piezas de Lego.</p>
+
+    <div class="ejercicio">
+      <h2 style="margin-top:0;"><span class="badge" style="background:#7c3aed;">✎</span>Ejercicio</h2>
+      <ol>
+        <li>Crear un componente <code class="inline">Header.jsx</code> (título + subtítulo) y otro <code class="inline">Footer.jsx</code>.</li>
+        <li>Armar un <code class="inline">App.jsx</code> que los importe y los use.</li>
+        <li>Crear un componente <code class="inline">Card.jsx</code> y usarlo 3 veces dentro de <code class="inline">App</code> con contenido repetido, para sentir el valor de reutilizar.</li>
+      </ol>
+
+      <details class="solucion">
+        <summary>Ver solución<span class="tag">Click para expandir</span></summary>
+        <div class="contenido-solucion">
+
+          <div class="code-label">Header.jsx</div>
+          <pre><span class="kw">export default</span> <span class="kw">function</span> <span class="fn">Header</span>() {
+  <span class="kw">return</span> (
+    &lt;header&gt;
+      &lt;h1&gt;Mi tienda&lt;/h1&gt;
+      &lt;p&gt;Productos frescos todos los días&lt;/p&gt;
+    &lt;/header&gt;
+  );
+}</pre>
+
+          <div class="code-label">Footer.jsx</div>
+          <pre><span class="kw">export default</span> <span class="kw">function</span> <span class="fn">Footer</span>() {
+  <span class="kw">return</span> (
+    &lt;footer&gt;
+      &lt;p&gt;&amp;copy; 2026 Mi tienda&lt;/p&gt;
+    &lt;/footer&gt;
+  );
+}</pre>
+
+          <div class="code-label">Card.jsx</div>
+          <pre><span class="kw">export default</span> <span class="kw">function</span> <span class="fn">Card</span>() {
+  <span class="kw">return</span> (
+    &lt;div className=<span class="str">"card"</span>&gt;
+      &lt;h3&gt;Producto&lt;/h3&gt;
+      &lt;p&gt;Descripción genérica del producto&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+
+          <div class="code-label">App.jsx</div>
+          <pre><span class="kw">import</span> Header <span class="kw">from</span> <span class="str">'./Header'</span>;
+<span class="kw">import</span> Footer <span class="kw">from</span> <span class="str">'./Footer'</span>;
+<span class="kw">import</span> Card <span class="kw">from</span> <span class="str">'./Card'</span>;
+
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    &lt;div&gt;
+      &lt;Header /&gt;
+      &lt;Card /&gt;
+      &lt;Card /&gt;
+      &lt;Card /&gt;
+      &lt;Footer /&gt;
+    &lt;/div&gt;
+  );
+}
+
+<span class="kw">export default</span> App;</pre>
+
+          <div class="nota">
+            <span class="etiqueta">Para remarcar en clase</span>
+            Las 3 <code class="inline">&lt;Card /&gt;</code> muestran exactamente lo mismo porque el componente no recibe datos desde afuera todavía. Eso es justo lo que vamos a resolver en la Clase 3, con props.
+          </div>
+
+        </div>
+      </details>
+    </div>
+
+    <div class="nav-clases">
+      <a href="clase-1.html">
+        <span class="eyebrow">Anterior</span>
+        <span class="nombre">← Clase 1: Import / Export</span>
+      </a>
+      <a class="der" href="clase-3.html">
+        <span class="eyebrow">Siguiente</span>
+        <span class="nombre">Clase 3: Props →</span>
+      </a>
+    </div>
+
+    <div class="pie">
+      MODULARIZACIÓN Y REACT
+      <span class="firma">Por Jairo Severo</span>
+    </div>
+
+  </div>
+
+</body>
+</html>

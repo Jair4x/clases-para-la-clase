@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clase 3 · Props</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+  <div class="barra-top"></div>
+  <nav class="navbar">
+    <div class="miga-grupo">
+      <a class="marca" href="../index.html"><span class="punto"></span>Inicio</a>
+      <span class="miga-sep">/</span>
+      <a class="miga-link" href="index.html">Modularización y React</a>
+    </div>
+    <span class="miga">Clase 3 de 3</span>
+  </nav>
+
+  <div class="contenedor">
+
+    <div class="kicker">Modularización y React &middot; Clase 3 de 3</div>
+    <h1 class="titulo">Props</h1>
+    <p class="subtitulo">Cómo pasar datos a un componente, comparado con funciones normales de JS</p>
+
+    <h2 id="s1"><span class="badge" style="background:#7c3aed;">1</span>El problema</h2>
+    <p>En la Clase 2, <code class="inline">Card</code> siempre muestra lo mismo. ¿Cómo hacemos que cada <code class="inline">Card</code> muestre contenido distinto sin duplicar el componente?</p>
+
+    <h2 id="s2"><span class="badge" style="background:#ec4899;">2</span>Comparación con funciones de JS normales</h2>
+    <p>Esto es lo más importante de la clase, porque conecta con algo que ya dominan.</p>
+
+    <div class="code-label">función normal de JS</div>
+    <pre><span class="kw">function</span> <span class="fn">saludar</span>(nombre) {
+  <span class="kw">return</span> <span class="str">`Hola, ${nombre}`</span>;
+}
+
+<span class="fn">saludar</span>(<span class="str">'Juan'</span>);   <span class="cm">// "Hola, Juan"</span>
+<span class="fn">saludar</span>(<span class="str">'María'</span>);  <span class="cm">// "Hola, María"</span></pre>
+
+    <div class="code-label">componente de React</div>
+    <pre><span class="kw">function</span> <span class="fn">Saludo</span>({ nombre }) {
+  <span class="kw">return</span> &lt;h1&gt;Hola, {nombre}&lt;/h1&gt;;
+}</pre>
+    <pre class="sin-label">&lt;Saludo nombre=<span class="str">"Juan"</span> /&gt;
+&lt;Saludo nombre=<span class="str">"María"</span> /&gt;</pre>
+
+    <p><strong>Las props son, ni más ni menos, los parámetros de la función-componente.</strong> Lo que cambia es la sintaxis:</p>
+    <ul>
+      <li>En una función normal, los parámetros se pasan entre paréntesis: <code class="inline">saludar('Juan')</code>.</li>
+      <li>En un componente, se pasan como si fueran atributos HTML: <code class="inline">&lt;Saludo nombre="Juan" /&gt;</code>.</li>
+      <li>React junta todos esos "atributos" en <strong>un solo objeto</strong>, que por convención se llama <code class="inline">props</code>.</li>
+    </ul>
+
+    <div class="code-label">sin destructuring</div>
+    <pre><span class="kw">function</span> <span class="fn">Saludo</span>(props) {
+  <span class="kw">return</span> &lt;h1&gt;Hola, {props.nombre}&lt;/h1&gt;;
+}</pre>
+
+    <p>Es exactamente lo mismo que la versión de arriba, con la diferencia de que ahí usamos <strong>destructuring</strong>. Si esa palabra no les suena, vale la pena una pausa antes de seguir.</p>
+
+    <h3>Repaso rápido: destructuring en JS puro</h3>
+    <p>Destructuring es una forma corta de sacar valores de adentro de un objeto, sin tener que escribir <code class="inline">objeto.propiedad</code> cada vez. No tiene nada de React todavía, es JavaScript común:</p>
+
+    <div class="code-label">forma larga</div>
+    <pre><span class="kw">const</span> persona = { nombre: <span class="str">'Ana'</span>, edad: <span class="num">30</span> };
+
+<span class="kw">const</span> nombre = persona.nombre;
+<span class="kw">const</span> edad = persona.edad;
+
+console.<span class="fn">log</span>(nombre); <span class="cm">// 'Ana'</span>
+console.<span class="fn">log</span>(edad);   <span class="cm">// 30</span></pre>
+
+    <div class="code-label">misma idea, con destructuring</div>
+    <pre><span class="kw">const</span> persona = { nombre: <span class="str">'Ana'</span>, edad: <span class="num">30</span> };
+
+<span class="kw">const</span> { nombre, edad } = persona;
+
+console.<span class="fn">log</span>(nombre); <span class="cm">// 'Ana'</span>
+console.<span class="fn">log</span>(edad);   <span class="cm">// 30</span></pre>
+
+    <p>Las llaves <code class="inline">{ nombre, edad }</code> le dicen a JavaScript: "de este objeto, sacame estas dos propiedades y creame una variable para cada una, con el mismo nombre". Es exactamente lo mismo que las dos líneas de la forma larga, solo que en una sola línea.</p>
+
+    <div class="nota">
+      <span class="etiqueta">Dato</span>
+      El nombre de la variable tiene que coincidir con el nombre de la propiedad. Si el objeto tiene <code class="inline">nombre</code>, la variable se tiene que llamar <code class="inline">nombre</code>; no es un orden posicional como con los arrays.
+    </div>
+
+    <p>Ahora sí: en React, <strong>props es un objeto</strong> (como <code class="inline">persona</code> en el ejemplo), así que el destructuring funciona exactamente igual, solo que se escribe directo en los parámetros de la función:</p>
+
+    <div class="code-label">con destructuring</div>
+    <pre><span class="kw">function</span> <span class="fn">Saludo</span>({ nombre }) {
+  <span class="kw">return</span> &lt;h1&gt;Hola, {nombre}&lt;/h1&gt;;
+}</pre>
+
+    <p>Solo que la segunda versión usa <strong>destructuring</strong> (que ya conocen de JS puro) para no escribir <code class="inline">props.nombre</code> todo el tiempo.</p>
+
+    <h2 id="s3"><span class="badge" style="background:#f59e0b;">3</span>Varias props</h2>
+    <div class="code-label">Card.jsx</div>
+    <pre><span class="kw">function</span> <span class="fn">Card</span>({ titulo, descripcion, imagen }) {
+  <span class="kw">return</span> (
+    &lt;div className=<span class="str">"card"</span>&gt;
+      &lt;img src={imagen} alt={titulo} /&gt;
+      &lt;h2&gt;{titulo}&lt;/h2&gt;
+      &lt;p&gt;{descripcion}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+
+    <pre class="sin-label">&lt;Card
+  titulo=<span class="str">"Producto A"</span>
+  descripcion=<span class="str">"Descripción del producto A"</span>
+  imagen=<span class="str">"/img/a.png"</span>
+/&gt;
+&lt;Card
+  titulo=<span class="str">"Producto B"</span>
+  descripcion=<span class="str">"Descripción del producto B"</span>
+  imagen=<span class="str">"/img/b.png"</span>
+/&gt;</pre>
+
+    <h2 id="s4"><span class="badge" style="background:#10b981;">4</span>Props son de solo lectura</h2>
+    <p>Un componente <strong>no puede modificar sus propias props</strong>, de la misma forma que una función normal no debería modificar los parámetros que recibe. Si algo necesita cambiar con el tiempo (como resultado de una interacción), eso ya es un tema de <strong>estado</strong> (<code class="inline">useState</code>), que queda para otra clase, pero vale la pena mencionarlo para que no se confundan.</p>
+
+    <h2 id="s5"><span class="badge" style="background:#3b82f6;">5</span>Children: un tipo especial de prop</h2>
+    <div class="code-label">Contenedor.jsx</div>
+    <pre><span class="kw">function</span> <span class="fn">Contenedor</span>({ children }) {
+  <span class="kw">return</span> &lt;div className=<span class="str">"contenedor"</span>&gt;{children}&lt;/div&gt;;
+}</pre>
+    <pre class="sin-label">&lt;Contenedor&gt;
+  &lt;p&gt;Este contenido se pasa "adentro" del componente&lt;/p&gt;
+&lt;/Contenedor&gt;</pre>
+    <p><code class="inline">children</code> es una prop implícita que representa todo lo que se pone entre las etiquetas de apertura y cierre del componente.</p>
+
+    <h2 id="s6"><span class="badge" style="background:#06b6d4;">6</span>Cuándo usar props</h2>
+    <ul>
+      <li>Cuando un componente necesita <strong>datos externos</strong> para renderizar (texto, número, url, etc.).</li>
+      <li>Cuando querés que un componente sea <strong>reutilizable</strong> con distinto contenido.</li>
+      <li>Cuando un componente padre necesita pasarle <strong>una función</strong> a un hijo (por ejemplo, qué hacer al hacer click), ya que las funciones son valores como cualquier otro en JS.</li>
+    </ul>
+
+    <div class="nota">
+      <span class="etiqueta">Idea central</span>
+      Props = parámetros de función. Mismo concepto que ya conocen, solo que se pasan con sintaxis de atributos y llegan agrupados en un objeto.
+    </div>
+
+    <div class="ejercicio">
+      <h2 style="margin-top:0;"><span class="badge" style="background:#7c3aed;">✎</span>Ejercicio</h2>
+      <ol>
+        <li>Tomar el <code class="inline">Card.jsx</code> de la Clase 2 y convertirlo para que reciba <code class="inline">titulo</code>, <code class="inline">descripcion</code> e <code class="inline">imagen</code> por props.</li>
+        <li>Usarlo 3 veces en <code class="inline">App.jsx</code> con contenido distinto en cada una.</li>
+        <li>Bonus: agregarle una prop <code class="inline">onClick</code> que sea una función, y pasarle una función distinta desde <code class="inline">App</code> a cada <code class="inline">Card</code>.</li>
+      </ol>
+
+      <details class="solucion">
+        <summary>Ver solución<span class="tag">Click para expandir</span></summary>
+        <div class="contenido-solucion">
+
+          <div class="code-label">Card.jsx</div>
+          <pre><span class="kw">export default</span> <span class="kw">function</span> <span class="fn">Card</span>({ titulo, descripcion, imagen, onClick }) {
+  <span class="kw">return</span> (
+    &lt;div className=<span class="str">"card"</span> onClick={onClick}&gt;
+      &lt;img src={imagen} alt={titulo} /&gt;
+      &lt;h3&gt;{titulo}&lt;/h3&gt;
+      &lt;p&gt;{descripcion}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+
+          <div class="code-label">App.jsx</div>
+          <pre><span class="kw">import</span> Card <span class="kw">from</span> <span class="str">'./Card'</span>;
+
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    &lt;div&gt;
+      &lt;Card
+        titulo=<span class="str">"Producto A"</span>
+        descripcion=<span class="str">"El más pedido"</span>
+        imagen=<span class="str">"/img/a.png"</span>
+        onClick={() =&gt; <span class="fn">alert</span>(<span class="str">'Clickeaste A'</span>)}
+      /&gt;
+      &lt;Card
+        titulo=<span class="str">"Producto B"</span>
+        descripcion=<span class="str">"Edición limitada"</span>
+        imagen=<span class="str">"/img/b.png"</span>
+        onClick={() =&gt; <span class="fn">alert</span>(<span class="str">'Clickeaste B'</span>)}
+      /&gt;
+      &lt;Card
+        titulo=<span class="str">"Producto C"</span>
+        descripcion=<span class="str">"Recién llegado"</span>
+        imagen=<span class="str">"/img/c.png"</span>
+        onClick={() =&gt; <span class="fn">alert</span>(<span class="str">'Clickeaste C'</span>)}
+      /&gt;
+    &lt;/div&gt;
+  );
+}
+
+<span class="kw">export default</span> App;</pre>
+
+          <div class="nota">
+            <span class="etiqueta">Para remarcar en clase</span>
+            El bonus muestra que una prop no tiene por qué ser un dato: acá <code class="inline">onClick</code> es una función distinta en cada tarjeta, pasada de la misma forma que <code class="inline">titulo</code> o <code class="inline">imagen</code>.
+          </div>
+
+        </div>
+      </details>
+    </div>
+
+    <div class="nav-clases">
+      <a href="clase-2.html">
+        <span class="eyebrow">Anterior</span>
+        <span class="nombre">← Clase 2: Componentes</span>
+      </a>
+      <a class="der" href="index.html">
+        <span class="eyebrow">Fin del curso</span>
+        <span class="nombre">Volver al inicio →</span>
+      </a>
+    </div>
+
+    <div class="pie">
+      MODULARIZACIÓN Y REACT
+      <span class="firma">Por Jairo Severo</span>
+    </div>
+
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clase 1 · Import / Export</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+  <div class="barra-top"></div>
+  <nav class="navbar">
+    <div class="miga-grupo">
+      <a class="marca" href="../index.html"><span class="punto"></span>Inicio</a>
+      <span class="miga-sep">/</span>
+      <a class="miga-link" href="index.html">Modularización y React</a>
+    </div>
+    <span class="miga">Clase 1 de 3</span>
+  </nav>
+
+  <div class="contenedor">
+
+    <div class="kicker">Modularización y React &middot; Clase 1 de 3</div>
+    <h1 class="titulo">Import / Export</h1>
+    <p class="subtitulo">Qué es un módulo, y cómo importar y exportar código propio</p>
+
+    <h2 id="s1"><span class="badge" style="background:#7c3aed;">1</span>Qué es un módulo</h2>
+    <p>Antes de hablar de modularizar, conviene tener claro qué es un módulo.</p>
+    <p><strong>Un módulo es un archivo de código con su propio espacio aislado</strong>, que decide explícitamente qué partes de sí mismo comparte con otros archivos. Todo lo que no comparte queda "adentro", invisible desde afuera.</p>
+    <p>Pensarlo como una caja cerrada: adentro puede haber muchas variables y funciones, pero desde afuera solo se ve lo que la caja decide mostrar.</p>
+
+    <div class="nota">
+      <span class="etiqueta">Dato</span>
+      Ya usaron módulos, aunque no los hayan escrito ustedes. Cada librería de Node que instalaron con npm es un módulo: alguien escribió el código, decidió qué partes exponer, y lo empaquetó para que otros lo usen.
+    </div>
+
+    <h2 id="s2"><span class="badge" style="background:#ec4899;">2</span>Lo que ya conocen: importar</h2>
+    <p>Hasta ahora usaron módulos desde el lado de "consumirlos". Algo así les resulta familiar:</p>
+
+    <div class="code-label">index.js</div>
+    <pre><span class="kw">const</span> express = <span class="fn">require</span>(<span class="str">'express'</span>);
+
+<span class="kw">const</span> app = <span class="fn">express</span>();</pre>
+
+    <p>Acá <code class="inline">express</code> es un módulo. Pero hasta este punto solo vieron un lado de la historia: <strong>siempre importaron</strong>, nunca exportaron nada propio. Falta la otra mitad.</p>
+
+    <h2 id="s3"><span class="badge" style="background:#f59e0b;">3</span>El otro lado: exportar</h2>
+    <p>Para que <code class="inline">express</code> se pueda importar, alguien tuvo que escribir, en algún archivo de esa librería, algo parecido a esto:</p>
+
+    <div class="code-label">adentro de la librería express (simplificado)</div>
+    <pre>module.<span class="prop">exports</span> = <span class="fn">crearAplicacion</span>;</pre>
+
+    <p>Eso es <strong>exportar</strong>: decidir qué parte del archivo va a estar disponible para quien lo importe. Vamos a escribir nuestro propio módulo, de punta a punta.</p>
+
+    <div class="code-label">matematicas.js</div>
+    <pre><span class="kw">function</span> <span class="fn">sumar</span>(a, b) {
+  <span class="kw">return</span> a + b;
+}
+
+module.<span class="prop">exports</span> = { sumar };</pre>
+
+    <div class="code-label">index.js</div>
+    <pre><span class="kw">const</span> { sumar } = <span class="fn">require</span>(<span class="str">'./matematicas'</span>);
+console.<span class="fn">log</span>(<span class="fn">sumar</span>(<span class="num">2</span>, <span class="num">3</span>));</pre>
+
+    <p>Esto es <strong>CommonJS</strong>, el sistema de módulos "clásico" de Node: <code class="inline">module.exports</code> para exportar, <code class="inline">require</code> para importar.</p>
+
+    <h2 id="s4"><span class="badge" style="background:#10b981;">4</span>Por qué modularizar</h2>
+    <p>¿Qué pasa si todo el código de una app está en un solo archivo?</p>
+    <ul>
+      <li>Difícil de leer y mantener</li>
+      <li>Difícil de reutilizar código</li>
+      <li>Difícil de trabajar en equipo (todos tocan el mismo archivo, y eso genera conflictos)</li>
+      <li>Difícil de testear partes aisladas</li>
+    </ul>
+
+    <div class="nota">
+      <span class="etiqueta">Idea central</span>
+      Modularizar es dividir el código en piezas pequeñas, cada una con una responsabilidad, que se combinan importándolas entre sí. Exportar es cómo una pieza decide qué comparte, importar es cómo otra pieza la usa.
+    </div>
+
+    <h2 id="s5"><span class="badge" style="background:#3b82f6;">5</span>ES Modules, lo que usa React</h2>
+    <p>React usa <strong>ES Modules</strong> (<code class="inline">import</code> / <code class="inline">export</code>), no CommonJS. La sintaxis cambia, pero la idea es la misma: exportar algo desde un archivo, importarlo en otro.</p>
+
+    <div class="code-label">matematicas.js</div>
+    <pre><span class="kw">export</span> <span class="kw">function</span> <span class="fn">sumar</span>(a, b) {
+  <span class="kw">return</span> a + b;
+}
+
+<span class="kw">export</span> <span class="kw">function</span> <span class="fn">restar</span>(a, b) {
+  <span class="kw">return</span> a - b;
+}</pre>
+
+    <div class="code-label">index.js</div>
+    <pre><span class="kw">import</span> { sumar, restar } <span class="kw">from</span> <span class="str">'./matematicas'</span>;
+
+console.<span class="fn">log</span>(<span class="fn">sumar</span>(<span class="num">2</span>, <span class="num">3</span>));
+console.<span class="fn">log</span>(<span class="fn">restar</span>(<span class="num">5</span>, <span class="num">1</span>));</pre>
+
+    <p>Esto se llama <strong>named export</strong>: se puede exportar varias cosas del mismo archivo, y al importar se usa el mismo nombre entre llaves.</p>
+
+    <h2 id="s6"><span class="badge" style="background:#06b6d4;">6</span>Export default</h2>
+    <p>También existe el <strong>export default</strong>, para cuando un archivo exporta "una cosa principal":</p>
+
+    <div class="code-label">saludo.js</div>
+    <pre><span class="kw">export default</span> <span class="kw">function</span> <span class="fn">saludo</span>(nombre) {
+  <span class="kw">return</span> <span class="str">`Hola, ${nombre}`</span>;
+}</pre>
+
+    <div class="code-label">index.js</div>
+    <pre><span class="kw">import</span> saludo <span class="kw">from</span> <span class="str">'./saludo'</span>; <span class="cm">// sin llaves, y con cualquier nombre</span>
+
+console.<span class="fn">log</span>(<span class="fn">saludo</span>(<span class="str">'Ana'</span>));</pre>
+
+    <table>
+      <tr>
+        <th></th>
+        <th>Named export</th>
+        <th>Default export</th>
+      </tr>
+      <tr>
+        <td>Cantidad por archivo</td>
+        <td>Varios</td>
+        <td>Uno solo</td>
+      </tr>
+      <tr>
+        <td>Al importar</td>
+        <td>{ nombre exacto }</td>
+        <td>cualquier nombre</td>
+      </tr>
+      <tr>
+        <td>Uso típico en React</td>
+        <td>funciones utilitarias, hooks, constantes</td>
+        <td>el componente principal del archivo</td>
+      </tr>
+    </table>
+
+    <h2 id="s7"><span class="badge" style="background:#f43f5e;">7</span>CommonJS vs ES Modules</h2>
+    <pre class="sin-label"><span class="cm">// CommonJS (Node clásico)</span>
+module.<span class="prop">exports</span> = algo;
+<span class="kw">const</span> algo = <span class="fn">require</span>(<span class="str">'./archivo'</span>);
+
+<span class="cm">// ES Modules (React / JS moderno)</span>
+<span class="kw">export default</span> algo;
+<span class="kw">import</span> algo <span class="kw">from</span> <span class="str">'./archivo'</span>;</pre>
+
+    <div class="ejercicio">
+      <h2 style="margin-top:0;"><span class="badge" style="background:#7c3aed;">✎</span>Ejercicio</h2>
+      <ol>
+        <li>Crear un archivo <code class="inline">utilidades.js</code> con 3 funciones (ej: <code class="inline">formatearFecha</code>, <code class="inline">esPar</code>, <code class="inline">capitalizar</code>) usando named exports.</li>
+        <li>Crear un archivo <code class="inline">main.js</code> que las importe y las use.</li>
+        <li>Bonus: convertir una de esas funciones a <code class="inline">export default</code> en otro archivo y notar la diferencia al importarla.</li>
+      </ol>
+
+      <details class="solucion">
+        <summary>Ver solución<span class="tag">Click para expandir</span></summary>
+        <div class="contenido-solucion">
+
+          <div class="code-label">utilidades.js</div>
+          <pre><span class="kw">export</span> <span class="kw">function</span> <span class="fn">formatearFecha</span>(fecha) {
+  <span class="kw">return</span> fecha.<span class="fn">toLocaleDateString</span>(<span class="str">'es-AR'</span>);
+}
+
+<span class="kw">export</span> <span class="kw">function</span> <span class="fn">esPar</span>(numero) {
+  <span class="kw">return</span> numero % <span class="num">2</span> === <span class="num">0</span>;
+}
+
+<span class="kw">export</span> <span class="kw">function</span> <span class="fn">capitalizar</span>(texto) {
+  <span class="kw">return</span> texto.<span class="fn">charAt</span>(<span class="num">0</span>).<span class="fn">toUpperCase</span>() + texto.<span class="fn">slice</span>(<span class="num">1</span>);
+}</pre>
+
+          <div class="code-label">main.js</div>
+          <pre><span class="kw">import</span> { formatearFecha, esPar, capitalizar } <span class="kw">from</span> <span class="str">'./utilidades'</span>;
+
+console.<span class="fn">log</span>(<span class="fn">formatearFecha</span>(<span class="kw">new</span> <span class="fn">Date</span>()));  <span class="cm">// ej: 18/8/2026</span>
+console.<span class="fn">log</span>(<span class="fn">esPar</span>(<span class="num">4</span>));                    <span class="cm">// true</span>
+console.<span class="fn">log</span>(<span class="fn">capitalizar</span>(<span class="str">'hola'</span>));       <span class="cm">// Hola</span></pre>
+
+          <h3>Bonus: una de las funciones como default export</h3>
+          <div class="code-label">capitalizar.js</div>
+          <pre><span class="kw">export default</span> <span class="kw">function</span> <span class="fn">capitalizar</span>(texto) {
+  <span class="kw">return</span> texto.<span class="fn">charAt</span>(<span class="num">0</span>).<span class="fn">toUpperCase</span>() + texto.<span class="fn">slice</span>(<span class="num">1</span>);
+}</pre>
+
+          <div class="code-label">main.js</div>
+          <pre><span class="kw">import</span> capitalizarPalabra <span class="kw">from</span> <span class="str">'./capitalizar'</span>; <span class="cm">// cualquier nombre, sin llaves</span>
+
+console.<span class="fn">log</span>(<span class="fn">capitalizarPalabra</span>(<span class="str">'mundo'</span>)); <span class="cm">// Mundo</span></pre>
+
+          <div class="nota">
+            <span class="etiqueta">Para remarcar en clase</span>
+            La diferencia clave del bonus no es el resultado, es la importación: sin llaves y con el nombre que cada uno elija, porque el archivo exporta una sola cosa por default.
+          </div>
+
+        </div>
+      </details>
+    </div>
+
+    <div class="nav-clases">
+      <span></span>
+      <a class="der" href="clase-2.html">
+        <span class="eyebrow">Siguiente</span>
+        <span class="nombre">Clase 2: Componentes →</span>
+      </a>
+    </div>
+
+    <div class="pie">
+      MODULARIZACIÓN Y REACT
+      <span class="firma">Por Jairo Severo</span>
+    </div>
+
+  </div>
+
+</body>
+</html>
