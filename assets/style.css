@@ -654,6 +654,10 @@ details.solucion .contenido-solucion {
   margin: 0 auto 40px auto;
   padding: 0 24px;
   text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
 }
 .sugerencia-cta a {
   display: inline-flex;
@@ -671,6 +675,121 @@ details.solucion .contenido-solucion {
 }
 .sugerencia-cta a:hover { border-color: var(--purpura); transform: translateY(-1px); }
 
+/* ---------- Glosario: link de acceso en navbar ---------- */
+.glosario-link {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--linea);
+  background: var(--superficie);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  text-decoration: none;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.glosario-link:hover { transform: scale(1.08); border-color: var(--purpura); }
+
+/* ---------- Recursos adicionales (por clase) ---------- */
+.recursos {
+  margin-top: 44px;
+}
+.recursos h2 { margin-top: 0; }
+.recursos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+.recurso-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--linea);
+  background: var(--superficie);
+  text-decoration: none;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.recurso-link:hover { border-color: var(--purpura); transform: translateY(-1px); }
+.recurso-link .info { display: flex; flex-direction: column; gap: 2px; }
+.recurso-link .titulo-recurso { font-weight: 700; font-size: 13.5px; color: var(--tinta); }
+.recurso-link .dominio-recurso { font-size: 11.5px; color: var(--texto-suave); }
+.recurso-link .flecha-externa { flex-shrink: 0; font-size: 15px; color: var(--texto-suave); }
+
+/* ---------- Playground embebido (link a sandbox) ---------- */
+.playground-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 4px 0;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--purpura);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 12.5px;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.playground-link:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -12px var(--sombra); }
+.playground-nota {
+  font-size: 12px;
+  color: var(--texto-suave);
+  margin: 8px 0 0 2px;
+}
+
+/* ---------- Glosario: página ---------- */
+.glosario-filtro {
+  width: 100%;
+  padding: 13px 18px;
+  border-radius: 12px;
+  border: 1.5px solid var(--linea);
+  background: var(--superficie);
+  color: var(--texto);
+  font-size: 14.5px;
+  margin: 8px 0 34px 0;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s ease;
+}
+.glosario-filtro::placeholder { color: var(--texto-suave); }
+.glosario-filtro:focus { border-color: var(--purpura); }
+
+.termino {
+  padding: 15px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--linea);
+  background: var(--superficie);
+  margin-bottom: 10px;
+}
+.termino .nombre-termino {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 5px;
+}
+.termino .nombre-termino strong {
+  font-size: 14.5px;
+  color: var(--tinta);
+}
+.termino .ver-clase {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--purpura);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.termino .ver-clase:hover { text-decoration: underline; }
+.termino p { margin: 0; font-size: 13.5px; color: var(--texto); }
+.termino.oculto { display: none; }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 560px) {
   h1.titulo { font-size: 29px; }
@@ -679,4 +798,6 @@ details.solucion .contenido-solucion {
   .card-clase { padding: 18px; gap: 14px; }
   .nav-clases { flex-direction: column; }
   .nav-clases a.der { text-align: left; }
+  .recurso-link { flex-direction: column; align-items: flex-start; }
+  .termino .nombre-termino { flex-direction: column; gap: 2px; }
 }

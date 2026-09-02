@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glosario</title>
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('tema');
+      if (!t) { t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'; }
+      document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+  <div class="barra-top"></div>
+  <nav class="navbar">
+    <div class="miga-grupo">
+      <a class="marca" href="index.html"><span class="punto"></span>Inicio</a>
+      <span class="miga-sep">/</span>
+      <span class="miga-link">Glosario</span>
+    </div>
+    <div class="navbar-derecha">
+      <button id="temaToggle" class="tema-toggle" aria-label="Cambiar tema" title="Cambiar tema">🌙</button>
+    </div>
+  </nav>
+
+  <div class="contenedor">
+
+    <div class="kicker">Referencia rápida</div>
+    <h1 class="titulo">Glosario</h1>
+    <p class="subtitulo">Todos los términos de las clases, en un solo lugar. Cada uno linkea a dónde se explica en detalle.</p>
+
+    <input type="text" id="filtroGlosario" class="glosario-filtro" placeholder="Buscar un término (ej: props, useEffect, contexto)...">
+
+    <section class="glosario-grupo">
+    <h2><span class="badge" style="background:#7c3aed;">1</span>Modularización y React</h2>
+
+    <div class="termino">
+      <div class="nombre-termino">
+        <strong>Módulo</strong>
+        <a class="ver-clase" href="modularizacion-y-react/clase-1.html#s1">Ver en la clase →</a>
+      </div>
+      <p>Un archivo de código con su propio espacio aislado, que decide explícitamente qué partes de sí mismo comparte con otros archivos.</p>
+    </div>
+
+    <div class="termino">
+      <div class="nombre-termino">
+        <strong>Import</strong>
+        <a class="ver-clase" href="modularizacion-y-react/clase-1.html#s2">Ver en la clase →</a>
+      </div>
+      <p>Traer a un archivo algo que otro módulo exportó, ya sea una librería instalada o un archivo propio.</p>
+    </div>
+
+    <div class="termino">
+      <div class="nombre-termino">
+        <strong>Export (named export)</strong>
+        <a class="ver-clase" href="modularizacion-y-react/clase-1.html#s3">Ver en la clase →</a>
+      </div>
+      <p>Decidir qué parte de un archivo va a estar disponible para quien lo importe. Un archivo puede tener varios named exports.</p>
+    </div>
+
+    <div class="termino">
+      <div class="nombre-termino">
+        <strong>Export default</strong>
+        <a class="ver-clase" href="modularizacion-y-react/clase-1.html#s6">Ver en la clase →</a>
+      </div>
+      <p>La forma de exportar "una cosa principal" por archivo. Al importarla no se usan llaves y se le puede poner cualquier nombre.</p>
+    </div>
+
+    <div class="termino">
+      <div class="nombre-termino">
+        <strong>Componente</strong>
+        <a class="ver-clase" href="modularizacion-y-react/clase-2.html#s1">Ver en la clase →</a>
+      </div>
+      <p>Una función de JavaScript que devuelve JSX (interfaz), en vez de un número o un string.</p>
+    </div>
+
+    <div class="termino">
+      <div class="nombre-termino">
+        <strong>Composición</strong>
+        <a class="ver-clase" href="modularizacion-y-react/clase-2.html#s5">Ver en la clase →</a>
+      </div>
+      <p>Combinar componentes entre sí, usando unos adentro de otros, como piezas de Lego.</p>
+    </div>
+
+    <div class="termino">
+      <div class="nombre-termino">
+        <strong>Props</strong>
+        <a class="ver-clase" href="modularizacion-y-react/clase-3.html#s2">Ver en la clase →</a>
+      </div>
+      <p>Los parámetros de la función-componente. Se pasan como atributos JSX y llegan agrupados en un objeto.</p>
+    </div>
+
+    <div class="termino">
+      <div class="nombre-termino">
+        <strong>Destructuring</strong>
+        <a class="ver-clase" href="modularizacion-y-react/clase-3.html#s2">Ver en la clase →</a>
+      </div>
+      <p>Forma corta de sacar valores de adentro de un objeto o un array, sin escribir <code class="inline">objeto.propiedad</code> cada vez.</p>
+    </div>
+
+    <div class="termino">
+      <div class="nombre-termino">
+        <strong>children</strong>
+        <a class="ver-clase" href="modularizacion-y-react/clase-3.html#s5">Ver en la clase →</a>
+      </div>
+      <p>Prop implícita que representa todo lo que se pone entre las etiquetas de apertura y cierre de un componente.</p>
+    </div>
+
+    </section>
+
+    <section class="glosario-grupo">
+    <h2><span class="badge" style="background:#f43f5e;">2</span>Hooks y estados</h2>
+
+    <div class="termino">
+      <div class="nombre-termino">
+        <strong>Render</strong>
+        <a class="ver-clase" href="hooks-y-estados/clase-1.html#s1">Ver en la clase →</a>
+      </div>
+      <p>El momento en el que React ejecuta la función de un componente y calcula qué JSX tiene que mostrar en pantalla.</p>
+    </div>
+
+    <div class="termino">
+      <div class="nombre-termino">
+        <strong>Estado</strong>
+        <a class="ver-clase" href="hooks-y-estados/clase-1.html#s3">Ver en la clase →</a>
+      </div>
+      <p>Un valor que React guarda asociado a un componente. Al actualizarlo con la herramienta correcta, dispara un nuevo render.</p>
+    </div>
+
+    <div class="termino">
+      <div class="nombre-termino">
+        <strong>useState</strong>
+        <a class="ver-clase" href="hooks-y-estados/clase-1.html#s3">Ver en la clase →</a>
+      </div>
+      <p>Hook que declara una variable de estado. Devuelve un array de dos elementos: el valor actual, y una función para actualizarlo.</p>
+    </div>
+
+    <div class="termino">
+      <div class="nombre-termino">
+        <strong>Renderizado condicional</strong>
+        <a class="ver-clase" href="hooks-y-estados/clase-1.html#s6">Ver en la clase →</a>
+      </div>
+      <p>Mostrar interfaz distinta según el estado, con operador ternario (<code class="inline">? :</code>), <code class="inline">&amp;&amp;</code>, o <code class="inline">if / else</code>.</p>
+    </div>
+
+    <div class="termino">
+      <div class="nombre-termino">
+        <strong>Efecto secundario</strong>
+        <a class="ver-clase" href="hooks-y-estados/clase-2.html#s1">Ver en la clase →</a>
+      </div>
+      <p>Algo que un componente hace por fuera del render puro: pedir datos a un servidor, iniciar un timer, escuchar un evento.</p>
+    </div>
+
+    <div class="termino">
+      <div class="nombre-termino">
+        <strong>useEffect</strong>
+        <a class="ver-clase" href="hooks-y-estados/clase-2.html#s2">Ver en la clase →</a>
+      </div>
+      <p>Hook para ejecutar efectos secundarios después de que el componente se dibuja en pantalla.</p>
+    </div>
+
+    <div class="termino">
+      <div class="nombre-termino">
+        <strong>Array de dependencias</strong>
+        <a class="ver-clase" href="hooks-y-estados/clase-2.html#s3">Ver en la clase →</a>
+      </div>
+      <p>El segundo argumento de <code class="inline">useEffect</code>. Controla cuándo se vuelve a ejecutar el efecto.</p>
+    </div>
+
+    <div class="termino">
+      <div class="nombre-termino">
+        <strong>Función de limpieza (cleanup)</strong>
+        <a class="ver-clase" href="hooks-y-estados/clase-2.html#s4">Ver en la clase →</a>
+      </div>
+      <p>Lo que un <code class="inline">useEffect</code> puede devolver, para desarmar algo (un timer, un listener) antes de correr de nuevo.</p>
+    </div>
+
+    <div class="termino">
+      <div class="nombre-termino">
+        <strong>useRef</strong>
+        <a class="ver-clase" href="hooks-y-estados/clase-3.html#s2">Ver en la clase →</a>
+      </div>
+      <p>Hook para guardar un valor que persiste entre renders sin disparar un re-render, o para referenciar un elemento del DOM.</p>
+    </div>
+
+    <div class="termino">
+      <div class="nombre-termino">
+        <strong>Prop drilling</strong>
+        <a class="ver-clase" href="hooks-y-estados/clase-4.html#s1">Ver en la clase →</a>
+      </div>
+      <p>Pasar una prop por varios componentes intermedios que no la usan, solo para que llegue a uno más profundo.</p>
+    </div>
+
+    <div class="termino">
+      <div class="nombre-termino">
+        <strong>Context / Provider</strong>
+        <a class="ver-clase" href="hooks-y-estados/clase-4.html#s2">Ver en la clase →</a>
+      </div>
+      <p>Un valor disponible para toda una parte del árbol de componentes, sin pasarlo manualmente nivel por nivel.</p>
+    </div>
+
+    <div class="termino">
+      <div class="nombre-termino">
+        <strong>useContext</strong>
+        <a class="ver-clase" href="hooks-y-estados/clase-4.html#s3">Ver en la clase →</a>
+      </div>
+      <p>Hook para leer el valor de un Context desde cualquier componente adentro de su Provider.</p>
+    </div>
+
+    <div class="termino">
+      <div class="nombre-termino">
+        <strong>Hook propio (custom hook)</strong>
+        <a class="ver-clase" href="hooks-y-estados/clase-4.html#s4">Ver en la clase →</a>
+      </div>
+      <p>Una función que empieza con <code class="inline">use</code> y usa uno o más hooks de React por dentro, para reutilizar lógica con estado.</p>
+    </div>
+
+    </section>
+
+    <p id="sinResultados" class="playground-nota" style="display:none; text-align:center; margin-top:20px;">No se encontró ningún término con eso.</p>
+
+    <div class="pie">
+      GLOSARIO
+      <span class="firma">Por Jairo Severo</span>
+    </div>
+
+  </div>
+
+  <script src="assets/theme.js" defer></script>
+  <script>
+    document.getElementById('filtroGlosario').addEventListener('input', function (e) {
+      var q = e.target.value.trim().toLowerCase();
+      var visibles = 0;
+      document.querySelectorAll('.glosario-grupo').forEach(function (grupo) {
+        var visiblesEnGrupo = 0;
+        grupo.querySelectorAll('.termino').forEach(function (el) {
+          var coincide = el.textContent.toLowerCase().indexOf(q) !== -1;
+          el.classList.toggle('oculto', !coincide);
+          if (coincide) visiblesEnGrupo++;
+        });
+        grupo.style.display = visiblesEnGrupo === 0 ? 'none' : '';
+        visibles += visiblesEnGrupo;
+      });
+      document.getElementById('sinResultados').style.display = visibles === 0 ? 'block' : 'none';
+    });
+  </script>
+
+</body>
+</html>

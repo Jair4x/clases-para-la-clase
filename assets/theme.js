@@ -1,4 +1,4 @@
-// Modularización y React / Hooks y estados — toggle de tema claro/oscuro
+// Toggle de tema claro/oscuro
 (function () {
   var boton = document.getElementById('temaToggle');
   if (!boton) return;

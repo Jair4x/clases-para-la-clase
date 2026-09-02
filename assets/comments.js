@@ -1,6 +1,5 @@
 // Inyecta el widget de comentarios (giscus) en #giscus-container,
-// usando la config de assets/giscus-config.js. Si todavía no está
-// configurado, muestra un aviso discreto en su lugar.
+// usando la config de assets/giscus-config.js.
 (function () {
   var contenedor = document.getElementById('giscus-container');
   if (!contenedor) return;
